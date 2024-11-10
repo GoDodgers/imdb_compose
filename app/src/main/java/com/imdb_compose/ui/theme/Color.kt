@@ -218,7 +218,22 @@ val surfaceContainerHighDarkHighContrast = Color(0xFF2B2A2A)
 val surfaceContainerHighestDarkHighContrast = Color(0xFF363434)
 
 
-
+val gray100 = Color(0xff555555)
+val gray200 = Color(0xff444444)
+val gray300 = Color(0xff333333)
+val gray400 = Color(0xff222222)
+val gray500 = Color(0xff111111)
+val gray600 = Color(0xff000000)
+val blue100 = Color(0xff1eeeff)
+val blue200 = Color(0xff3D76E0)
+val blue300 = Color(0xff1e90ff)
+val blue400 = Color(0xff1e32ff)
+val bananaYellow = Color(0xffffe134)
+val ripeMango = Color(0xffffbf2e)
+val constuctionOrange = Color(0xffffc300)
+val deepSaffron = Color(0xffff9e28)
+val princetonOrange = Color(0xfffe7c22)
+val giantsOrange = Color(0xfffe5a1c)
 
 
 

@@ -30,12 +30,12 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import com.example.compose.gray500
+import com.example.compose.ripeMango
 import com.imdb_compose.BottomBar
-import com.imdb_compose.domain.Retrofit
-import com.imdb_compose.TopBarWithBackBtn
-import com.imdb_compose.gray500
+import com.imdb_compose.TopBar
+import com.imdb_compose.domain.Resources
 import com.imdb_compose.isLoading
-import com.imdb_compose.ripeMango
 import com.imdb_compose.shadow
 import kotlinx.coroutines.launch
 
@@ -46,13 +46,13 @@ fun PersonDetailsPage(
     id: Int,
     viewModel: HomeScreenViewModel,
     navController: NavController,
-    clickHandlerBackBtn: () -> Unit
+    clickHandlerBackButton: () -> Unit
 ) {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         containerColor = Color.Transparent,
         topBar = {
-            TopBarWithBackBtn(person, clickHandlerBackBtn)
+            TopBar(person, true, clickHandlerBackButton)
         },
         bottomBar = {
             BottomBar(navController)
@@ -85,13 +85,13 @@ fun PersonDetailsPage(
                                 blurRadiusFilter = "SOLID"
                             ),
                     ) {
-                        personDetails.value?.let {
+                        personDetails.value?.let { details ->
                             Box(modifier = Modifier.padding(start = 8.dp, top = 16.dp, end = 8.dp)) {
                                 Column {
                                     // Name & Known For
                                     Column {
                                         Text(
-                                            text = it.name,
+                                            text = details.name,
                                             fontSize = MaterialTheme.typography.headlineLarge.fontSize,
                                             fontWeight = MaterialTheme.typography.headlineLarge.fontWeight,
                                             fontStyle = MaterialTheme.typography.headlineLarge.fontStyle,
@@ -99,7 +99,7 @@ fun PersonDetailsPage(
                                         )
                                         Spacer(modifier = Modifier.height(8.dp))
                                         Text(
-                                            text = it.known_for_department,
+                                            text = details.known_for_department,
                                             fontSize = MaterialTheme.typography.titleMedium.fontSize,
                                             fontWeight = MaterialTheme.typography.titleMedium.fontWeight,
                                             fontStyle = MaterialTheme.typography.titleMedium.fontStyle,
@@ -115,7 +115,7 @@ fun PersonDetailsPage(
                                     ) {
                                         Box(modifier = Modifier.width(125.dp)) {
                                             AsyncImage(
-                                                model = "${Retrofit.BASE_IMAGE_URL}${Retrofit.IMAGE_PATH}${it.profile_path}",
+                                                model = "${ Resources.BASE_IMAGE_URL }${ Resources.IMAGE_PATH }${ details.profile_path }",
                                                 contentDescription = null,
                                                 contentScale = ContentScale.FillWidth
                                             )
@@ -123,15 +123,15 @@ fun PersonDetailsPage(
 
                                         Box(modifier = Modifier.padding(start = 8.dp)) {
                                             Column {
-                                                if (it.biography != null) {
+                                                details.biography.let { bio ->
                                                     Text(
-                                                        text = it.biography,
+                                                        text = bio,
                                                         maxLines = 6,
                                                         overflow = TextOverflow.Ellipsis
                                                     )
                                                 }
-                                                if (it.birthday != null) {
-                                                    Text(text = "Born: ${ it.birthday }")
+                                                details.birthday.let { bDay ->
+                                                    Text(text = "Born: ${ bDay }")
                                                 }
                                             }
                                         }

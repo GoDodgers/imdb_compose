@@ -1,6 +1,7 @@
 package com.imdb_compose.domain
 
-import com.imdb_compose.domain.Retrofit.BASE_URL
+import com.google.gson.GsonBuilder
+import com.imdb_compose.domain.Resources.BASE_URL
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -16,8 +17,12 @@ object NetworkModule {
     @Singleton
     @Provides
     fun retrofit(okHttpClient: OkHttpClient): retrofit2.Retrofit {
-        return retrofit2.Retrofit.Builder().baseUrl(BASE_URL)
-            .addConverterFactory(GsonConverterFactory.create())
+//        "2024-07-31
+        val gson = GsonBuilder().setDateFormat("yyyy-MM-dd'T'L:d").create()
+
+        return retrofit2.Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create(gson))
             .client(okHttpClient)
             .build()
     }

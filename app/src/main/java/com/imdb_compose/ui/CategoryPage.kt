@@ -16,21 +16,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.imdb_compose.BottomBar
-import com.imdb_compose.TopBarWithBackBtn
+import com.imdb_compose.TopBar
 
 @Composable
 fun CategoryPage(
     category: String,
-    viewModel: HomeScreenViewModel,
     navController: NavController,
-    clickHandlerBackBtn: () -> Unit
+    clickHandlerBackButton: () -> Unit
 ) {
-    val catagoryPageViewModel = CatagoryPageViewModel(category)
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
-            TopBarWithBackBtn(category, clickHandlerBackBtn)
+            TopBar(category, true, clickHandlerBackButton)
         },
         bottomBar = {
             BottomBar(navController)
@@ -41,80 +39,17 @@ fun CategoryPage(
                 .fillMaxSize()
                 .padding(paddingValues = paddingValues),
         ) {
-            val movies = viewModel.movieListOfWeek.collectAsState()
+
             Row (
                 modifier = Modifier
                     .height(420.dp)
                     .fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-//                TvCarousel(category, viewModel, catagoryPageViewModel)
                 Text("TODO")
             }
             Spacer(modifier = Modifier.height(8.dp))
-//            Column (
-//                modifier = Modifier.fillMaxWidth()
-//            ) {
-//                LazyColumn(
-//                    modifier = Modifier
-//                ) {
-//                    movies.value?.results?.forEach { movie ->
-//                        item {
-//                            Row(
-//                                modifier = Modifier
-//                                    .height(100.dp)
-//                                    .fillMaxWidth()
-//                                    .border(width = 1.dp, color = Color.Black)
-//                                    .clickable {
-//                                        navController.navigate(
-//                                            Navigator.MovieDetailsPage(
-//                                                movie.title
-//                                            )
-//                                        )
-//                                    },
-//                                horizontalArrangement = Arrangement.Start,
-//                            ) {
-//                                Box(
-//                                    modifier = Modifier.padding(start = 4.dp, end = 4.dp)
-//                                ) {
-//                                    Column (
-//                                        modifier = Modifier.fillMaxHeight(),
-//                                        verticalArrangement = Arrangement.SpaceBetween
-//                                    ) {
-//                                        Text(text = "Catagory Page")
-//                                        Text(text = movie.title)
-//                                        Text(text = movie.overview)
-//                                    }
-//                                }
-//                            }
-//                        }
-//                    }
-//                }
-//            }
+
         }
     }
 }
-
-//@SuppressLint("CoroutineCreationDuringComposition", "StateFlowValueCalledInComposition")
-//@OptIn(ExperimentalMaterial3Api::class)
-//@Composable
-//fun TvCarousel(category: String, viewModel: HomeScreenViewModel, catagoryPageViewModel: CatagoryPageViewModel) {
-//    val tvShows = viewModel.trendingTv.collectAsState().value?.results?.toList()!!
-//    val carouselState = rememberCarouselState { 3 }
-//    Box(modifier = Modifier.fillMaxSize()) {
-//        HorizontalUncontainedCarousel(
-//            state = carouselState,
-//            itemWidth = 400.dp,
-//            itemSpacing = 8.dp
-//        ) {page ->
-//            Box(
-//                modifier = Modifier
-//                    .size(250.dp)
-//                    .border(width = 2.dp, color = MaterialTheme.colorScheme.outline)
-//            ) {
-//
-//            }
-//        }
-//    }
-//}
-

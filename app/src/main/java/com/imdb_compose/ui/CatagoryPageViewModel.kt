@@ -3,21 +3,25 @@ package com.imdb_compose.ui
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.imdb_compose.domain.MovieApi
-import com.imdb_compose.domain.Retrofit
+import com.imdb_compose.domain.PeopleApi
 import com.imdb_compose.domain.TvApi
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class CatagoryPageViewModel(category: String) : ViewModel() {
+@HiltViewModel
+class CatagoryPageViewModel @Inject constructor(
+    private val movieApi: MovieApi,
+    private val tvApi: TvApi,
+    private val peopleApi: PeopleApi
+) : ViewModel() {
     val BASE_URL = "https://api.themoviedb.org/"
 
-    private val movieApi = Retrofit.getInstance().create(MovieApi::class.java)
-    private val tvApi = Retrofit.getInstance().create(TvApi::class.java)
-
-    private val _trendingTv: MutableStateFlow<TvList?> = MutableStateFlow(null)
-    val trendingTv: StateFlow<TvList?> = _trendingTv.asStateFlow()
+//    private val _trendingTv: MutableStateFlow<TvList?> = MutableStateFlow(null)
+//    val trendingTv: StateFlow<TvList?> = _trendingTv.asStateFlow()
 
     private val _tvImgs: MutableStateFlow<ImageResults?> = MutableStateFlow(null)
     val tvImgs: StateFlow<ImageResults?> = _tvImgs.asStateFlow()
@@ -41,12 +45,12 @@ class CatagoryPageViewModel(category: String) : ViewModel() {
         // https://api.themoviedb.org/3/tv/{series_id}/images
     }
 
-    suspend fun getTvImage(id: Int, imgPath: String) {
-        viewModelScope.launch {
-            val result = tvApi.getTvImg(id, imgPath)
-            _tvImgs.value = result
-        }
-    }
+//    suspend fun getTvImage(id: Int, imgPath: String) {
+//        viewModelScope.launch {
+//            val result = tvApi.getTvImg(id, imgPath)
+//            _tvImgs.value = result
+//        }
+//    }
 
 }
 

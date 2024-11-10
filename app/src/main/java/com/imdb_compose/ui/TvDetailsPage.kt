@@ -32,13 +32,13 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import com.example.compose.ripeMango
 import com.imdb_compose.BottomBar
 import com.imdb_compose.Pager
 import com.imdb_compose.Tags
-import com.imdb_compose.TopBarWithBackBtn
-import com.imdb_compose.domain.Retrofit
+import com.imdb_compose.TopBar
+import com.imdb_compose.domain.Resources
 import com.imdb_compose.isLoading
-import com.imdb_compose.ripeMango
 import kotlinx.coroutines.launch
 
 @SuppressLint("CoroutineCreationDuringComposition", "StateFlowValueCalledInComposition")
@@ -48,12 +48,12 @@ fun TvDetailsPage(
     id: Int,
     viewModel: HomeScreenViewModel,
     navController: NavController,
-    clickHandlerBackBtn: () -> Unit
+    clickHandlerBackButton: () -> Unit
 ) {
     Scaffold(
         containerColor = Color.Transparent,
         topBar = {
-            TopBarWithBackBtn(title = show, clickHandlerBackBtn)
+            TopBar(show, true, clickHandlerBackButton)
         },
         bottomBar = {
             BottomBar(navController = navController)
@@ -82,10 +82,7 @@ fun TvDetailsPage(
                                 modifier = Modifier.padding(start = 6.dp),
                                 text = details.name,
                                 lineHeight = 50.sp,
-                                fontSize = MaterialTheme.typography.displayMedium.fontSize,
-                                fontWeight = MaterialTheme.typography.displayMedium.fontWeight,
-                                fontStyle = MaterialTheme.typography.displayMedium.fontStyle,
-                                fontFamily = MaterialTheme.typography.displayMedium.fontFamily
+                                fontStyle = MaterialTheme.typography.displayMedium.fontStyle
                             )
                             // Year Rating Duration
                             Row (
@@ -105,7 +102,7 @@ fun TvDetailsPage(
                             Row (modifier = Modifier.padding(start = 8.dp)) {
                                 AsyncImage(
                                     modifier = Modifier.width(170.dp),
-                                    model = "${ Retrofit.BASE_IMAGE_URL }${ Retrofit.IMAGE_PATH }${ details.poster_path }",
+                                    model = "${ Resources.BASE_IMAGE_URL }${ Resources.IMAGE_PATH }${ details.poster_path }",
                                     contentDescription = ""
                                 )
                                 Text(
