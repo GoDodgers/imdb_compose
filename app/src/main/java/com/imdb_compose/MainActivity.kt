@@ -222,81 +222,65 @@ fun HomeScreen(
             LazyColumn {
                 item {
                     catagories.forEachIndexed { i, catagory ->
-                        Box(
+                        Row (
                             modifier = Modifier
-                                .fillMaxWidth()
-                                .shadow2(
-                                    color = gray600.copy(alpha = 0.6f),
-                                    offsetX = 0.dp,
-                                    offsetY = 0.dp,
-                                    blurRadius = 4.dp
-                                )
+                                .fillMaxWidth(fraction = 0.95f)
+                                .fillMaxHeight(fraction = 0.95f)
+                                .background(color = gray400)
+                                .padding(bottom = 16.dp)
                         ) {
-                            Row (
-                                modifier = Modifier
-                                    .fillMaxWidth(fraction = 0.95f)
-                                    .fillMaxHeight(fraction = 0.95f)
-                                    .shadow2(
-                                        color = gray400,
-                                        offsetX = 8.dp,
-                                        offsetY = 8.dp,
-                                        blurRadius = 4.dp,
-                                        blurRadiusFilter = "SOLID"
-                                    )
-                            ) {
-                                Column (modifier = Modifier.padding(start = 8.dp, top = 8.dp)) {
-                                    Row (
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.SpaceBetween,
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        // Orange Accent <Catagory>
-                                        Row (verticalAlignment = Alignment.CenterVertically) {
-                                            Box(
-                                                modifier = Modifier
-                                                    .padding(start = 8.dp)
-                                                    .clip(RoundedCornerShape(24.dp))
-                                                    .height(36.dp)
-                                                    .width(6.dp)
-                                                    .background(ripeMango)
-                                            )
+                            Column (modifier = Modifier.padding(start = 8.dp, top = 8.dp)) {
+                                Row (
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    // Orange Accent <Catagory>
+                                    Row (verticalAlignment = Alignment.CenterVertically) {
+                                        Box(
+                                            modifier = Modifier
+                                                .padding(start = 8.dp)
+                                                .clip(RoundedCornerShape(24.dp))
+                                                .height(36.dp)
+                                                .width(6.dp)
+                                                .background(ripeMango)
+                                        )
+                                        Text(
+                                            text = catagory,
+                                            modifier = Modifier.padding(start = 8.dp),
+                                            color = MaterialTheme.colorScheme.onSecondary,
+                                            style = MaterialTheme.typography.headlineMedium
+                                        )
+                                    }
+                                    // See All Btn
+                                    Row (verticalAlignment = Alignment.CenterVertically) {
+                                        TextButton(
+                                            modifier = Modifier.padding(start = 8.dp),
+                                            onClick = { navController.navigate(Navigator.CategoryPage(catagory = catagory)) }
+                                        ) {
                                             Text(
-                                                text = catagory,
+                                                text = stringResource(R.string.see_all),
                                                 modifier = Modifier.padding(start = 8.dp),
-                                                color = MaterialTheme.colorScheme.onSecondary,
-                                                style = MaterialTheme.typography.headlineMedium
+                                                color = blue400,
+                                                fontStyle = MaterialTheme.typography.headlineLarge.fontStyle,
+                                                fontWeight = FontWeight.Bold
                                             )
                                         }
-                                        // See All Btn
-                                        Row (verticalAlignment = Alignment.CenterVertically) {
-                                            TextButton(
-                                                modifier = Modifier.padding(start = 8.dp),
-                                                onClick = { navController.navigate(Navigator.CategoryPage(catagory = catagory)) }
-                                            ) {
-                                                Text(
-                                                    text = stringResource(R.string.see_all),
-                                                    modifier = Modifier.padding(start = 8.dp),
-                                                    color = blue400,
-                                                    fontStyle = MaterialTheme.typography.headlineLarge.fontStyle,
-                                                    fontWeight = FontWeight.Bold
-                                                )
-                                            }
-                                        }
                                     }
+                                }
 
-                                    Spacer(modifier = Modifier.height(8.dp))
+                                Spacer(modifier = Modifier.height(8.dp))
 
-                                    when(catagory) {
-                                        "Tv airing today" -> TvBox(catagory, airingTodayTv, navController)
-                                        "Trending tv" -> TvBox(catagory, trendingTv, navController)
-//                                        "Top box office" -> BoxOfficeBox(catagory, boxOffice)
-//                                        "Upcoming movies" -> UpcommingBox(catagory, upcomingMovies)
-//                                        "Popular actors" -> PersonBox(catagory, popularPersons)
-//                                        "Trending people" -> PersonBox(catagory, trendingPersons)
-//                                        "Movies of the week" -> MovieBox(catagory, movieListOfWeek)
-//                                        "Trending movies" -> MovieBox(catagory, trendingMovies)
-                                        else -> MovieBox(catagory, noMovies)
-                                    }
+                                when(catagory) {
+                                    "Popular actors" -> PersonBox(catagory, popularPersons, navController)
+                                    "Trending movies" -> MovieBox(catagory, trendingMovies, navController)
+                                    "Movies of the week" -> MovieBox(catagory, movieListOfWeek, navController)
+                                    "Upcoming movies" -> UpcommingBox(catagory, upcomingMovies, navController)
+                                    "Tv airing today" -> TvBox(catagory, airingTodayTv, navController)
+                                    "Trending tv" -> TvBox(catagory, trendingTv, navController)
+                                    "Trending people" -> PersonBox(catagory, trendingPersons, navController)
+                                    "Top box office" -> BoxOfficeBox(catagory, boxOffice, navController)
+                                    else -> MovieBox(catagory, noMovies, navController)
                                 }
                             }
                         }
@@ -369,47 +353,11 @@ fun BottomBar(navController: NavController) {
     )
 }
 
-@SuppressLint("SuspiciousModifierThen")
-fun Modifier.shadow2(
-    color: Color = Color.Black,
-    offsetX: Dp = 0.dp,
-    offsetY: Dp = 0.dp,
-    blurRadius: Dp = 0.dp,
-    blurRadiusFilter: String = "NORMAL"
-) = then(
-    drawBehind {
-        drawIntoCanvas { canvas ->
-            val paint = Paint()
-            val frameworkPaint = paint.asFrameworkPaint()
-
-            if (blurRadius != 0.dp) {
-                when (blurRadiusFilter) {
-                    "SOLID" -> frameworkPaint.maskFilter = (BlurMaskFilter(blurRadius.toPx(), BlurMaskFilter.Blur.SOLID))
-                    "OUTER" -> frameworkPaint.maskFilter = (BlurMaskFilter(blurRadius.toPx(), BlurMaskFilter.Blur.OUTER))
-                    "INNER" -> frameworkPaint.maskFilter = (BlurMaskFilter(blurRadius.toPx(), BlurMaskFilter.Blur.INNER))
-                    else -> frameworkPaint.maskFilter = (BlurMaskFilter(blurRadius.toPx(), BlurMaskFilter.Blur.NORMAL))
-                }
-            }
-
-            frameworkPaint.color = color.toArgb()
-            val leftPixel = offsetX.toPx()
-            val topPixel = offsetY.toPx()
-
-            canvas.drawRect(
-                left = leftPixel,
-                top = topPixel,
-                right = size.width + topPixel,
-                bottom = size.height + leftPixel,
-                paint = paint,
-            )
-        }
-    }
-)
-
 @Composable
 fun MovieBox(
     catagory: String,
     movies: State<MovieList?>,
+    navController: NavController
 ) {
     Box(modifier = Modifier.padding(start = 8.dp)) {
         LazyRow {
@@ -417,10 +365,23 @@ fun MovieBox(
                 it.poster_path != null
             }?.forEachIndexed { i, movie ->
                 item {
-//                    PosterBoxA(
-//                        catagory = catagory,
-//                        rank = "${ i + 1 }"
-//                    )
+                    BoxA(
+                        catagory = catagory,
+                        id = movie.id,
+                        name = movie.title,
+                        posterPath = movie.poster_path,
+                        details = movie.overview,
+                        score = movie.vote_average,
+                        onClick = { id ->
+                            navController.navigate(
+                                Navigator.MovieDetailsPage(
+                                    title = movie.title,
+                                    id = id
+                                )
+                            )
+                        },
+                        rank = "${ i + 1 }"
+                    )
                     Spacer(modifier = Modifier.width(8.dp))
                 }
             }
@@ -476,7 +437,24 @@ fun PersonBox(
                 it.profile_path != null
             }?.forEachIndexed { i, person ->
                 item {
-                    PosterBoxClip(catagory = catagory, rank = "${ i + 1 }", person = person, navController = navController)
+                    BoxClipped(
+                        catagory = catagory,
+                        rank = "${ i + 1 }",
+                        id = person.id,
+                        name = person.name,
+                        bestKnownFor = person.known_for_department,
+                        popularity = person.popularity,
+                        profilePath = person.profile_path,
+                        navController = navController,
+                        onClick = { id ->
+                            navController.navigate(
+                                Navigator.PersonDetailsPage(
+                                    person = person.name,
+                                    id = id
+                                )
+                            )
+                        }
+                    )
                     Spacer(modifier = Modifier.width(8.dp))
                 }
             }
@@ -485,75 +463,53 @@ fun PersonBox(
 }
 
 @Composable
-fun PosterBoxClip(
+fun BoxClipped(
     catagory: String,
+    id: Int,
     rank: String,
-    person: ActorResult,
+    name: String,
+    bestKnownFor: String,
+    popularity: String,
+    profilePath: String,
     navController: NavController,
+    onClick: (Int) -> Unit
 ) {
     Column(
         modifier = Modifier
-            .height(376.dp)
-            .fillMaxWidth()
-            .shadow2(
-                color = gray600.copy(alpha = 0.6f),
-                offsetX = 0.dp,
-                offsetY = 0.dp,
-                blurRadius = 4.dp
-            )
+            .height(336.dp)
+            .width(176.dp)
+            .shadow(elevation = 8.dp)
     ) {
         Box(
             modifier = Modifier
-                .height(272.dp)
                 .width(176.dp)
                 .clip(
                     RoundedCornerShape(
                         topStart = 16.dp,
-                        topEnd = 16.dp,
-                        bottomStart = 0.dp,
-                        bottomEnd = 0.dp
+                        topEnd = 16.dp
                     )
                 )
-                .shadow2(
-                    color = gray500,
-                    offsetX = 0.dp,
-                    offsetY = 0.dp,
-                    blurRadius = 4.dp
-                )
-                .clickable {
-                    navController.navigate(
-                        Navigator.PersonDetailsPage(
-                            person.name,
-                            person.id
-                        )
-                    )
-                },
+                .shadow(elevation = 8.dp)
+                .clickable { onClick(id) },
             contentAlignment = Alignment.Center
         ) {
             Box(
                 modifier = Modifier
                     .height(256.dp)
                     .width(160.dp)
-                    .shadow2(
-                        color = gray600,
-                        offsetX = 0.dp,
-                        offsetY = 0.dp,
-                        blurRadius = 4.dp
-                    ),
+                    .shadow(8.dp),
                 contentAlignment = Alignment.BottomStart
             ) {
-                // Image
                 ImageAsync(
-                    contentDescription = "${ catagory } ${ person.name }",
+                    contentDescription = "${ catagory } ${ name }",
                     clip = true,
                     aspectRatio = 5f / 8f,
-                    backDropPath = person.profile_path
+                    backDropPath = profilePath
                 )
-                Heart(name = person.name, paddingStart = 8.dp, paddingBottom = 8.dp)
+                Heart(name = name, paddingStart = 8.dp, paddingBottom = 8.dp)
             }
         }
-        // Bottom Half Details
-//        Details(catagory = catagory, rank = rank, showCircleI = false)
+        Details(catagory = catagory, name = name, score = popularity, rank = rank, details = "", width = 176.dp, trending = false, showCircleI = false)
     }
 }
 
@@ -595,7 +551,24 @@ fun UpcommingBox(
         LazyRow {
             movies.value?.results?.forEachIndexed { i, movie ->
                 item {
-//                    PosterBoxB(catagory = catagory)
+                    BoxB(
+                        catagory = catagory,
+                        id = movie.id,
+                        name = movie.title,
+                        details = movie.overview,
+                        date = movie.release_date,
+                        score = movie.vote_average,
+                        posterPath = movie.poster_path,
+                        onClick = { id ->
+                            navController.navigate(
+                                Navigator.MovieDetailsPage(
+                                    title = movie.title,
+                                    id = id
+                                )
+                            )
+                        }
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
                 }
             }
         }
@@ -618,13 +591,7 @@ fun BoxOfficeBox(
             modifier = Modifier
                 .height(30.dp)
                 .fillMaxWidth()
-                .shadow2(
-                    color = gray100,
-                    offsetX = 0.dp,
-                    offsetY = 0.dp,
-                    blurRadius = 0.dp,
-                    blurRadiusFilter = "SOLID"
-                ),
+                .shadow(8.dp),
             contentAlignment = Alignment.CenterStart
         ) {
             Text(
@@ -648,13 +615,7 @@ fun BoxOfficeBox(
             modifier = Modifier
                 .height(650.dp)
                 .fillMaxWidth(0.99f)
-                .shadow2(
-                    color = gray500,
-                    offsetX = 0.dp,
-                    offsetY = 0.dp,
-                    blurRadius = 0.dp,
-                    blurRadiusFilter = "SOLID"
-                )
+                .shadow(8.dp)
         ) {
             Column (
                 modifier = Modifier.fillMaxSize(),
@@ -735,8 +696,8 @@ fun BoxA(
 ) {
     Column(
         modifier = Modifier
-            .width(220.dp)
-            .height(510.dp)
+            .width(225.dp)
+            .height(525.dp)
             .shadow(elevation = 8.dp)
     ) {
         Box (
@@ -745,10 +706,9 @@ fun BoxA(
                 .clickable { onClick(id) },
             contentAlignment = Alignment.TopStart
         ) {
-            Column (modifier = Modifier) {
+            Column (modifier = Modifier.padding(5.dp)) {
                 Box(modifier = Modifier.width(210.dp)) {
                     ImageAsync(
-                        clip = false,
                         contentDescription = "${ catagory } ${ name }",
                         backDropPath = posterPath
                     )
@@ -757,71 +717,84 @@ fun BoxA(
             }
         }
         val trending = Regex("trending").containsMatchIn(catagory.lowercase())
-        Details(catagory = catagory, rank = rank, name = name, details = details, score = score, showCircleI = !trending, trending = trending)
+        Details(catagory = catagory, rank = rank, name = name, details = details, score = score, width = 225.dp, trending = trending, showCircleI = !trending)
     }
 }
 
 @Composable
 fun BoxB(
     catagory: String,
+    id: Int,
     name: String,
+    details: String,
+    score: String,
     date: String,
     posterPath: String,
-    onClick: () -> Unit
+    onClick: (Int) -> Unit,
 ) {
-    Column (modifier = Modifier.height(574.dp)) {
-        Row {
+    Column {
+        Row(
+            modifier = Modifier
+                .width(323.dp)
+        ) {
             // upcoming date
             Box(
                 modifier = Modifier
-                    .fillMaxWidth()
                     .padding(start = 18.dp, top = 4.dp, bottom = 12.dp),
                 contentAlignment = Alignment.CenterStart
             ) {
                 //"2024-07-31"
                 val dateParts = date.split("-")
-                val monthMap = mapOf("01" to "Jan", "02" to "Feb", "03" to "Mar", "04" to "Apr", "05" to "May", "06" to "Jun", "07" to "Jul", "08" to "Aug", "09" to "Sep", "10" to "Oct", "11" to "Nov", "12" to "Dec",)
+                val monthMap = mapOf(
+                    "01" to "Jan",
+                    "02" to "Feb",
+                    "03" to "Mar",
+                    "04" to "Apr",
+                    "05" to "May",
+                    "06" to "Jun",
+                    "07" to "Jul",
+                    "08" to "Aug",
+                    "09" to "Sep",
+                    "10" to "Oct",
+                    "11" to "Nov",
+                    "12" to "Dec",
+                )
 
                 Text(
-//                    text = "${ monthMap[date[1]] }-${ date[2] }",
-                    text = date,
+                    text = "${monthMap[dateParts[1]]}-${dateParts[2]}",
+//                    text = date,
                     fontStyle = MaterialTheme.typography.labelLarge.fontStyle,
                     color = ripeMango,
                     textAlign = TextAlign.Center
                 )
             }
         }
-        // movie box
-        Box(
+
+        Column(
             modifier = Modifier
-                .width(300.dp)
-                .height(440.dp)
-                .clickable { onClick() },
-            contentAlignment = Alignment.TopStart
+                .width(323.dp)
+                .shadow(elevation = 8.dp)
         ) {
-            ImageAsync(
-                contentDescription = "${ catagory } ${ name }",
-                aspectRatio = 5f / 8f,
-                backDropPath = posterPath
-            )
-            // ribbon
-            Ribbon(paddingStart = 12.dp)
-        }
-        // details box
-        Column (
-            modifier = Modifier
-                .width(288.dp)
-                .shadow2(
-                    color = gray500,
-                    offsetX = 12.dp,
-                    offsetY = 0.dp,
-                    blurRadius = 4.dp,
-                    blurRadiusFilter = "SOLID"
-                )
-        ) {
-            Box(modifier = Modifier.padding(start = 16.dp, top = 8.dp), contentAlignment = Alignment.CenterStart) {
-//                Details(catagory = catagory, rank = "", showCircleI = false)
+            // movie box
+            Box(
+                modifier = Modifier
+                    .width(320.dp)
+                    .clickable { onClick(id) },
+                contentAlignment = Alignment.TopStart
+            ) {
+                Column(modifier = Modifier.padding(5.dp)) {
+                    Box(modifier = Modifier.width(310.dp)) {
+                        ImageAsync(
+                            contentDescription = "${ catagory } ${ name }",
+                            aspectRatio = 5f / 8f,
+                            backDropPath = posterPath,
+                        )
+                        // ribbon
+                        Ribbon(paddingStart = 12.dp)
+                    }
+                }
             }
+            Details(catagory = catagory, name = name, rank = "", details = details, score = score, width = 323.dp, trending = false, showCircleI = false)
         }
     }
 }
@@ -833,92 +806,91 @@ fun Details(
     name: String,
     details: String,
     score: String,
+    width: Dp,
     showCircleI: Boolean,
     trending: Boolean
 ) {
-    Box (
+    Column (
         modifier = Modifier
-            .width(220.dp)
+            .width(width)
+            .fillMaxHeight()
+            .padding(start = 8.dp, bottom = 8.dp),
+        verticalArrangement = Arrangement.SpaceEvenly
     ) {
-        Column (
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 4.dp, bottom = 8.dp),
-            verticalArrangement = Arrangement.SpaceEvenly
-        ) {
-            // Trending
-            if (trending) {
-                Box(
-                    modifier = Modifier.padding(start = 4.dp),
-                    contentAlignment = Alignment.CenterStart
-                ) {
-                    Text(
-                        text = rank,
-                        fontStyle = MaterialTheme.typography.displaySmall.fontStyle
-                    )
-                }
-            }
-            // movie || show || person name
+        // Trending
+        if (trending) {
             Box(
-                modifier = Modifier.padding(start = 8.dp, top = 8.dp),
+                modifier = Modifier.padding(start = 4.dp),
                 contentAlignment = Alignment.CenterStart
             ) {
-                Text(text = name, minLines = 1, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Text(
+                    text = rank,
+                    fontStyle = MaterialTheme.typography.displaySmall.fontStyle
+                )
             }
-            // details
+        }
+        // movie || show || person name
+        Box(
+            modifier = Modifier.padding(start = 8.dp, top = 8.dp),
+            contentAlignment = Alignment.CenterStart
+        ) {
+            Text(text = name, minLines = 1, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        }
+        // details
+        if (details.isNotEmpty()) {
             Text(
                 text = details,
-                modifier = Modifier.padding(all = 8.dp),
+                modifier = Modifier.padding(all = 12.dp),
                 minLines = 1,
                 maxLines = 3,
                 overflow = TextOverflow.Ellipsis
             )
-            // rating
-            Row(
+        }
+        // rating
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 8.dp)
+        ) {
+            Icon(
+                modifier = Modifier.padding(start = 8.dp),
+                imageVector = Icons.Filled.Star,
+                contentDescription = "rating",
+                tint = ripeMango
+            )
+            Text(modifier = Modifier.padding(start = 8.dp), text = score)
+        }
+        // Cirlce i
+        if (showCircleI) {
+            Row (
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 8.dp)
+                    .padding(end = 24.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.End
             ) {
-                Icon(
-                    modifier = Modifier.padding(start = 8.dp),
-                    imageVector = Icons.Filled.Star,
-                    contentDescription = "rating",
-                    tint = ripeMango
-                )
-                Text(modifier = Modifier.padding(start = 8.dp), text = score)
-            }
-            // Cirlce i
-            if (showCircleI) {
-                Row (
+                Box(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(end = 16.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.End
+                        .size(32.dp)
+                        .clip(CircleShape)
+                        .background(color = gray200),
+                    contentAlignment = Alignment.Center
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(32.dp)
+                            .size(25.dp)
                             .clip(CircleShape)
-                            .background(color = gray200),
+                            .background(color = gray600),
                         contentAlignment = Alignment.Center
                     ) {
-                        Box(
-                            modifier = Modifier
-                                .size(25.dp)
-                                .clip(CircleShape)
-                                .background(color = gray600),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                modifier = Modifier.fillMaxSize(),
-                                text = "i",
-                                fontWeight = FontWeight.Bold,
-                                fontSize = MaterialTheme.typography.titleLarge.fontSize,
-                                color = gray100,
-                                textAlign = TextAlign.Center
-                            )
-                        }
+                        Text(
+                            modifier = Modifier.fillMaxSize(),
+                            text = "i",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = MaterialTheme.typography.titleLarge.fontSize,
+                            color = gray100,
+                            textAlign = TextAlign.Center
+                        )
                     }
                 }
             }
@@ -970,6 +942,7 @@ fun Ribbon(
 @Composable
 fun ImageAsync(
     clip: Boolean = false,
+    crop: Boolean = false,
     contentDescription: String,
     aspectRatio: Float = 2f / 3f,
     imgPath: String = Resources.IMAGE_PATH,
@@ -987,7 +960,7 @@ fun ImageAsync(
                     RoundedCornerShape(0.dp)
                 }
             ),
-        contentScale = if (clip) {
+        contentScale = if (crop) {
             ContentScale.Crop
         } else {
             ContentScale.FillBounds
@@ -1001,23 +974,11 @@ fun ImageAsync(
 fun Tags(txt: String) {
     Box(
         modifier = Modifier
-            .shadow2(
-                color = gray600,
-                offsetX = 0.dp,
-                offsetY = 0.dp,
-                blurRadius = 2.dp,
-                blurRadiusFilter = "NORMAL"
-            )
+            .shadow(8.dp)
     ) {
         Box(
             modifier = Modifier
-                .shadow2(
-                    color = gray300,
-                    offsetX = 0.dp,
-                    offsetY = 0.dp,
-                    blurRadius = 2.dp,
-                    blurRadiusFilter = "INNER"
-                )
+                .shadow(8.dp)
         ) {
             Text(
                 modifier = Modifier.padding(all = 8.dp),

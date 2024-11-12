@@ -23,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
@@ -36,7 +37,6 @@ import com.imdb_compose.BottomBar
 import com.imdb_compose.TopBar
 import com.imdb_compose.domain.Resources
 import com.imdb_compose.isLoading
-import com.imdb_compose.shadow2
 import kotlinx.coroutines.launch
 
 @SuppressLint("CoroutineCreationDuringComposition", "StateFlowValueCalledInComposition")
@@ -78,12 +78,7 @@ fun PersonDetailsPage(
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .shadow2(
-                                color = gray500,
-                                offsetX = 0.dp,
-                                offsetY = 0.dp,
-                                blurRadiusFilter = "SOLID"
-                            ),
+                            .shadow(8.dp),
                     ) {
                         personDetails.value?.let { details ->
                             Box(modifier = Modifier.padding(start = 8.dp, top = 16.dp, end = 8.dp)) {

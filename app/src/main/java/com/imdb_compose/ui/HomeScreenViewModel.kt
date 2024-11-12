@@ -27,14 +27,14 @@ class HomeScreenViewModel @Inject constructor(
 ) : ViewModel() {
 
     val catagories: List<String> = listOf(
-        "Trending tv",
+        "Popular actors",
         "Tv airing today",
         "Upcoming movies",
-        "Popular actors",
-        "Trending people",
-        "Trending movies",
-        "Top box office",
         "Movies of the week",
+        "Trending movies",
+        "Trending tv",
+        "Trending people",
+        "Top box office",
     )
 
     private val _noMovies: MutableStateFlow<MovieList?> = MutableStateFlow(null)
