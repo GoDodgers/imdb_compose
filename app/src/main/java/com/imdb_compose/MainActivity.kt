@@ -862,38 +862,7 @@ fun Details(
         }
         // Cirlce i
         if (showCircleI) {
-            Row (
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(end = 24.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.End
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(32.dp)
-                        .clip(CircleShape)
-                        .background(color = gray200),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(25.dp)
-                            .clip(CircleShape)
-                            .background(color = gray600),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            modifier = Modifier.fillMaxSize(),
-                            text = "i",
-                            fontWeight = FontWeight.Bold,
-                            fontSize = MaterialTheme.typography.titleLarge.fontSize,
-                            color = gray100,
-                            textAlign = TextAlign.Center
-                        )
-                    }
-                }
-            }
+            InformationCircle(paddingEnd = 16.dp)
         }
     }
 }
@@ -937,6 +906,53 @@ fun Ribbon(
             contentDescription = "add favorite"
         )
     }
+}
+
+@Composable
+fun InformationCircle(
+    paddingStart: Dp = 0.dp,
+    paddingTop: Dp = 0.dp,
+    paddingEnd: Dp = 0.dp,
+    paddingBottom: Dp = 0.dp,
+) {
+    Row (
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(
+                start = paddingStart,
+                top = paddingTop,
+                end = paddingEnd,
+                bottom = paddingBottom
+            ),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.End
+    ) {
+        Box(
+            modifier = Modifier
+                .size(32.dp)
+                .clip(CircleShape)
+                .background(color = gray200),
+            contentAlignment = Alignment.Center
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(25.dp)
+                    .clip(CircleShape)
+                    .background(color = gray600),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    modifier = Modifier.fillMaxSize(),
+                    text = "i",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = MaterialTheme.typography.titleLarge.fontSize,
+                    color = gray100,
+                    textAlign = TextAlign.Center
+                )
+            }
+        }
+    }
+    Spacer(modifier = Modifier.height(8.dp))
 }
 
 @Composable
