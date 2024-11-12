@@ -36,7 +36,7 @@ import com.imdb_compose.BottomBar
 import com.imdb_compose.TopBar
 import com.imdb_compose.domain.Resources
 import com.imdb_compose.isLoading
-import com.imdb_compose.shadow
+import com.imdb_compose.shadow2
 import kotlinx.coroutines.launch
 
 @SuppressLint("CoroutineCreationDuringComposition", "StateFlowValueCalledInComposition")
@@ -78,7 +78,7 @@ fun PersonDetailsPage(
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .shadow(
+                            .shadow2(
                                 color = gray500,
                                 offsetX = 0.dp,
                                 offsetY = 0.dp,

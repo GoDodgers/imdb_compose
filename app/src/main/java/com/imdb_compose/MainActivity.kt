@@ -68,6 +68,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Paint
@@ -180,7 +181,7 @@ fun Theme() {
             }
             composable<Navigator.TvDetailsPage> {
                 val args =  it.toRoute<Navigator.TvDetailsPage>()
-                TvDetailsPage(args.show, args.id, viewModel = viewModel, navController = navController, { navController.popBackStack() })
+                TvDetailsPage(args.show, args.id, navController = navController, { navController.popBackStack() })
             }
         }
     }
@@ -224,7 +225,7 @@ fun HomeScreen(
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .shadow(
+                                .shadow2(
                                     color = gray600.copy(alpha = 0.6f),
                                     offsetX = 0.dp,
                                     offsetY = 0.dp,
@@ -235,7 +236,7 @@ fun HomeScreen(
                                 modifier = Modifier
                                     .fillMaxWidth(fraction = 0.95f)
                                     .fillMaxHeight(fraction = 0.95f)
-                                    .shadow(
+                                    .shadow2(
                                         color = gray400,
                                         offsetX = 8.dp,
                                         offsetY = 8.dp,
@@ -273,11 +274,10 @@ fun HomeScreen(
                                                 onClick = { navController.navigate(Navigator.CategoryPage(catagory = catagory)) }
                                             ) {
                                                 Text(
-                                                    text = "See all",
+                                                    text = stringResource(R.string.see_all),
                                                     modifier = Modifier.padding(start = 8.dp),
                                                     color = blue400,
-                                                    fontSize = MaterialTheme.typography.headlineSmall.fontSize,
-                                                    fontStyle = MaterialTheme.typography.headlineSmall.fontStyle,
+                                                    fontStyle = MaterialTheme.typography.headlineLarge.fontStyle,
                                                     fontWeight = FontWeight.Bold
                                                 )
                                             }
@@ -288,14 +288,14 @@ fun HomeScreen(
 
                                     when(catagory) {
                                         "Tv airing today" -> TvBox(catagory, airingTodayTv, navController)
-                                        "Trending tv" -> TvBox(catagory, trendingTv, navController)
-                                        "Top box office" -> BoxOfficeBox(catagory, boxOffice, navController)
-                                        "Upcoming movies" -> UpcommingBox(catagory, upcomingMovies, navController)
-                                        "Popular actors" -> PersonBox(catagory, popularPersons, navController)
-                                        "Trending people" -> PersonBox(catagory, trendingPersons, navController)
-                                        "Movies of the week" -> MovieBox(catagory, movieListOfWeek, navController)
-                                        "Trending movies" -> MovieBox(catagory, trendingMovies, navController)
-                                        else -> MovieBox(catagory, noMovies, navController)
+//                                        "Trending tv" -> TvBox(catagory, trendingTv)
+//                                        "Top box office" -> BoxOfficeBox(catagory, boxOffice)
+//                                        "Upcoming movies" -> UpcommingBox(catagory, upcomingMovies)
+//                                        "Popular actors" -> PersonBox(catagory, popularPersons)
+//                                        "Trending people" -> PersonBox(catagory, trendingPersons)
+//                                        "Movies of the week" -> MovieBox(catagory, movieListOfWeek)
+//                                        "Trending movies" -> MovieBox(catagory, trendingMovies)
+                                        else -> MovieBox(catagory, noMovies)
                                     }
                                 }
                             }
@@ -370,7 +370,7 @@ fun BottomBar(navController: NavController) {
 }
 
 @SuppressLint("SuspiciousModifierThen")
-fun Modifier.shadow(
+fun Modifier.shadow2(
     color: Color = Color.Black,
     offsetX: Dp = 0.dp,
     offsetY: Dp = 0.dp,
@@ -410,7 +410,6 @@ fun Modifier.shadow(
 fun MovieBox(
     catagory: String,
     movies: State<MovieList?>,
-    navController: NavController
 ) {
     Box(modifier = Modifier.padding(start = 8.dp)) {
         LazyRow {
@@ -418,13 +417,10 @@ fun MovieBox(
                 it.poster_path != null
             }?.forEachIndexed { i, movie ->
                 item {
-                    PosterBoxA(
-                        catagory = catagory,
-                        movie = movie,
-                        show = null,
-                        navController = navController,
-                        rank = "${ i + 1 }"
-                    )
+//                    PosterBoxA(
+//                        catagory = catagory,
+//                        rank = "${ i + 1 }"
+//                    )
                     Spacer(modifier = Modifier.width(8.dp))
                 }
             }
@@ -444,11 +440,21 @@ fun TvBox(
                 it.poster_path != null
             }?.forEachIndexed { i, show ->
                 item {
-                    PosterBoxA(
+                    BoxA(
                         catagory = catagory,
-                        show = show,
-                        movie = null,
-                        navController = navController,
+                        id = show.id,
+                        name = show.name,
+                        posterPath = show.poster_path,
+                        details = show.overview,
+                        score = show.vote_average,
+                        onClick = { id ->
+                            navController.navigate(
+                                Navigator.TvDetailsPage(
+                                    show = show.name,
+                                    id = id
+                                )
+                            )
+                        },
                         rank = "${ i + 1 }"
                     )
                     Spacer(modifier = Modifier.width(8.dp))
@@ -489,7 +495,7 @@ fun PosterBoxClip(
         modifier = Modifier
             .height(376.dp)
             .fillMaxWidth()
-            .shadow(
+            .shadow2(
                 color = gray600.copy(alpha = 0.6f),
                 offsetX = 0.dp,
                 offsetY = 0.dp,
@@ -508,7 +514,7 @@ fun PosterBoxClip(
                         bottomEnd = 0.dp
                     )
                 )
-                .shadow(
+                .shadow2(
                     color = gray500,
                     offsetX = 0.dp,
                     offsetY = 0.dp,
@@ -528,7 +534,7 @@ fun PosterBoxClip(
                 modifier = Modifier
                     .height(256.dp)
                     .width(160.dp)
-                    .shadow(
+                    .shadow2(
                         color = gray600,
                         offsetX = 0.dp,
                         offsetY = 0.dp,
@@ -547,7 +553,7 @@ fun PosterBoxClip(
             }
         }
         // Bottom Half Details
-        Details(catagory = catagory, rank = rank, movie = null, show = null, person = person, showCircleI = false)
+//        Details(catagory = catagory, rank = rank, showCircleI = false)
     }
 }
 
@@ -589,7 +595,7 @@ fun UpcommingBox(
         LazyRow {
             movies.value?.results?.forEachIndexed { i, movie ->
                 item {
-                    PosterBoxB(catagory = catagory, movie = movie, navController = navController)
+//                    PosterBoxB(catagory = catagory)
                 }
             }
         }
@@ -612,7 +618,7 @@ fun BoxOfficeBox(
             modifier = Modifier
                 .height(30.dp)
                 .fillMaxWidth()
-                .shadow(
+                .shadow2(
                     color = gray100,
                     offsetX = 0.dp,
                     offsetY = 0.dp,
@@ -642,7 +648,7 @@ fun BoxOfficeBox(
             modifier = Modifier
                 .height(650.dp)
                 .fillMaxWidth(0.99f)
-                .shadow(
+                .shadow2(
                     color = gray500,
                     offsetX = 0.dp,
                     offsetY = 0.dp,
@@ -717,90 +723,50 @@ fun BoxOfficeBox(
 }
 
 @Composable
-fun PosterBoxA(
+fun BoxA(
     catagory: String,
-    movie: MovieResult?,
-    show: TvResult?,
-    navController: NavController,
+    id: Int,
+    name: String,
+    posterPath: String,
+    details: String,
+    score: String,
+    onClick: (Int) -> Unit,
     rank: String
 ) {
     Column(
         modifier = Modifier
-            .shadow(
-                color = gray600.copy(alpha = 0.6f),
-                offsetX = 0.dp,
-                offsetY = 0.dp,
-                blurRadius = 4.dp
-            ),
+            .width(220.dp)
+            .height(510.dp)
+            .shadow(elevation = 8.dp)
     ) {
         Box (
             modifier = Modifier
-                .width(180.dp)
-                .height(270.dp)
-                .padding(vertical = 2.dp)
-                .shadow(
-                    color = gray500,
-                    offsetX = 0.dp,
-                    offsetY = 0.dp,
-                    blurRadius = 4.dp
-                )
-                .clickable {
-                    if (movie != null) {
-                        navController.navigate(
-                            Navigator.MovieDetailsPage(
-                                title = movie.title,
-                                id = movie.id
-                            )
-                        )
-                    }
-                    if (show != null) {
-                        navController.navigate(
-                            Navigator.TvDetailsPage(
-                                show = show.name,
-                                id = show.id
-                            )
-                        )
-                    }
-                },
+                .width(220.dp)
+                .clickable { onClick(id) },
             contentAlignment = Alignment.TopStart
         ) {
-            Column {
-                if (movie != null) {
-                    Box(modifier = Modifier) {
-                        ImageAsync(
-                            contentDescription = "${ catagory } ${ movie.title }",
-                            clip = false,
-                            backDropPath = movie.poster_path
-                        )
-                        Ribbon(paddingStart = 2.dp)
-                    }
-                }
-                if (show != null) {
-                    Box(modifier = Modifier) {
-                        ImageAsync(
-                            contentDescription = "${ catagory } ${ show.name }",
-                            clip = false,
-                            backDropPath = show.poster_path
-                        )
-                        Ribbon(paddingStart = 2.dp)
-                    }
+            Column (modifier = Modifier) {
+                Box(modifier = Modifier.width(210.dp)) {
+                    ImageAsync(
+                        clip = false,
+                        contentDescription = "${ catagory } ${ name }",
+                        backDropPath = posterPath
+                    )
+                    Ribbon()
                 }
             }
         }
-        if (movie != null) {
-            Details(catagory = catagory, rank = rank, movie = movie, show = null, person = null, showCircleI = true)
-        }
-        if (show != null) {
-            Details(catagory = catagory, rank = rank, show = show, movie = null, person = null, showCircleI = true)
-        }
+        Details(catagory = catagory, rank = rank, name = name, details = details, score = score, showCircleI = true)
     }
 }
 
 @Composable
 fun PosterBoxB(
     catagory: String,
-    movie: MovieResult,
-    navController: NavController
+    name: String,
+    date: String,
+    posterPath: String,
+    onClick: () -> Unit
 ) {
     Column (modifier = Modifier.height(574.dp)) {
         Row {
@@ -812,16 +778,13 @@ fun PosterBoxB(
                 contentAlignment = Alignment.CenterStart
             ) {
                 //"2024-07-31"
-                val date = movie.release_date.split("-")
+                val dateParts = date.split("-")
                 val monthMap = mapOf("01" to "Jan", "02" to "Feb", "03" to "Mar", "04" to "Apr", "05" to "May", "06" to "Jun", "07" to "Jul", "08" to "Aug", "09" to "Sep", "10" to "Oct", "11" to "Nov", "12" to "Dec",)
 
                 Text(
 //                    text = "${ monthMap[date[1]] }-${ date[2] }",
-                    text = movie.release_date,
-                    fontFamily = MaterialTheme.typography.labelLarge.fontFamily,
-                    fontSize = MaterialTheme.typography.labelLarge.fontSize,
+                    text = date,
                     fontStyle = MaterialTheme.typography.labelLarge.fontStyle,
-                    fontWeight = MaterialTheme.typography.labelLarge.fontWeight,
                     color = ripeMango,
                     textAlign = TextAlign.Center
                 )
@@ -832,21 +795,13 @@ fun PosterBoxB(
             modifier = Modifier
                 .width(300.dp)
                 .height(440.dp)
-                .clickable {
-                    navController.navigate(
-                        Navigator.MovieDetailsPage(title = movie.title, id = movie.id)
-                    )
-                },
+                .clickable { onClick() },
             contentAlignment = Alignment.TopStart
         ) {
             ImageAsync(
-                contentDescription = "${ catagory } ${ movie.title }",
+                contentDescription = "${ catagory } ${ name }",
                 aspectRatio = 5f / 8f,
-                backDropPath = if (movie.backdrop_path.isEmpty()) {
-                    movie.backdrop_path
-                } else {
-                    movie.poster_path
-                }
+                backDropPath = posterPath
             )
             // ribbon
             Ribbon(paddingStart = 12.dp)
@@ -855,7 +810,7 @@ fun PosterBoxB(
         Column (
             modifier = Modifier
                 .width(288.dp)
-                .shadow(
+                .shadow2(
                     color = gray500,
                     offsetX = 12.dp,
                     offsetY = 0.dp,
@@ -864,14 +819,7 @@ fun PosterBoxB(
                 )
         ) {
             Box(modifier = Modifier.padding(start = 16.dp, top = 8.dp), contentAlignment = Alignment.CenterStart) {
-                Details(
-                    catagory = catagory,
-                    rank = "",
-                    movie = movie,
-                    show = null,
-                    person = null,
-                    showCircleI = false
-                )
+//                Details(catagory = catagory, rank = "", showCircleI = false)
             }
         }
     }
@@ -881,12 +829,15 @@ fun PosterBoxB(
 fun Details(
     catagory: String,
     rank: String,
-    movie: MovieResult?,
-    show: TvResult?,
-    person: ActorResult?,
+    name: String,
+    details: String,
+    score: String,
     showCircleI: Boolean
 ) {
-    Box (modifier = Modifier.width(180.dp)) {
+    Box (
+        modifier = Modifier
+            .width(220.dp)
+    ) {
         Column (
             modifier = Modifier
                 .fillMaxWidth()
@@ -901,64 +852,45 @@ fun Details(
                 ) {
                     Text(
                         text = rank,
-                        fontSize = MaterialTheme.typography.displaySmall.fontSize,
-                        fontFamily = MaterialTheme.typography.displaySmall.fontFamily,
-                        fontStyle = MaterialTheme.typography.displaySmall.fontStyle,
-                        fontWeight = MaterialTheme.typography.displaySmall.fontWeight
+                        fontStyle = MaterialTheme.typography.displaySmall.fontStyle
                     )
                 }
             }
-            // person name
-            if (person != null) {
-                Text(
-                    text = person.original_name,
-                    modifier = Modifier.padding(start = 8.dp),
-                    overflow = TextOverflow.Ellipsis,
-                    softWrap = false
-                )
-                Text(
-                    text = person.known_for_department,
-                    modifier = Modifier.padding(start = 8.dp)
-                )
+            // movie || show || person name
+            Box(
+                modifier = Modifier.padding(start = 8.dp, top = 8.dp),
+                contentAlignment = Alignment.CenterStart
+            ) {
+                Text(text = name, minLines = 1, maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
+            // details
+            Text(
+                text = details,
+                modifier = Modifier.padding(all = 8.dp),
+                minLines = 1,
+                maxLines = 3,
+                overflow = TextOverflow.Ellipsis
+            )
             // rating
-            Row(modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 8.dp)) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 8.dp)
+            ) {
                 Icon(
                     modifier = Modifier.padding(start = 8.dp),
                     imageVector = Icons.Filled.Star,
                     contentDescription = "rating",
                     tint = ripeMango
                 )
-                if (movie != null) {
-                    Text(modifier = Modifier.padding(start = 8.dp), text = movie.vote_average)
-                }
-                if (show != null) {
-                    Text(modifier = Modifier.padding(start = 8.dp), text = show.popularity)
-                }
-                if (person != null) {
-                    Text(modifier = Modifier.padding(start = 8.dp), text = person.popularity)
-                }
-            }
-            // Movie & Show names
-            Box(
-                modifier = Modifier.padding(start = 4.dp, bottom = 8.dp),
-                contentAlignment = Alignment.CenterStart
-            ) {
-                if (movie != null) {
-                    Text(text = movie.title, minLines = 1, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                }
-                if (show != null) {
-                    Text(text = show.name, minLines = 1, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                }
+                Text(modifier = Modifier.padding(start = 8.dp), text = score)
             }
             // Cirlce i
             if (showCircleI) {
                 Row (
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(end = 8.dp),
+                        .padding(end = 16.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.End
                 ) {
@@ -1045,7 +977,7 @@ fun ImageAsync(
         model = "${ Resources.BASE_IMAGE_URL }${ imgPath }${ backDropPath }",
         modifier = Modifier
             .fillMaxWidth()
-            .aspectRatio(aspectRatio, true)
+            .aspectRatio(aspectRatio)
             .clip(
                 if (clip) {
                     RoundedCornerShape(16.dp)
@@ -1067,7 +999,7 @@ fun ImageAsync(
 fun Tags(txt: String) {
     Box(
         modifier = Modifier
-            .shadow(
+            .shadow2(
                 color = gray600,
                 offsetX = 0.dp,
                 offsetY = 0.dp,
@@ -1077,7 +1009,7 @@ fun Tags(txt: String) {
     ) {
         Box(
             modifier = Modifier
-                .shadow(
+                .shadow2(
                     color = gray300,
                     offsetX = 0.dp,
                     offsetY = 0.dp,
