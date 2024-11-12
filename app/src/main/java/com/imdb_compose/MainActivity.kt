@@ -288,7 +288,7 @@ fun HomeScreen(
 
                                     when(catagory) {
                                         "Tv airing today" -> TvBox(catagory, airingTodayTv, navController)
-//                                        "Trending tv" -> TvBox(catagory, trendingTv)
+                                        "Trending tv" -> TvBox(catagory, trendingTv, navController)
 //                                        "Top box office" -> BoxOfficeBox(catagory, boxOffice)
 //                                        "Upcoming movies" -> UpcommingBox(catagory, upcomingMovies)
 //                                        "Popular actors" -> PersonBox(catagory, popularPersons)
@@ -756,12 +756,13 @@ fun BoxA(
                 }
             }
         }
-        Details(catagory = catagory, rank = rank, name = name, details = details, score = score, showCircleI = true)
+        val trending = Regex("trending").containsMatchIn(catagory.lowercase())
+        Details(catagory = catagory, rank = rank, name = name, details = details, score = score, showCircleI = !trending, trending = trending)
     }
 }
 
 @Composable
-fun PosterBoxB(
+fun BoxB(
     catagory: String,
     name: String,
     date: String,
@@ -832,7 +833,8 @@ fun Details(
     name: String,
     details: String,
     score: String,
-    showCircleI: Boolean
+    showCircleI: Boolean,
+    trending: Boolean
 ) {
     Box (
         modifier = Modifier
@@ -845,7 +847,7 @@ fun Details(
             verticalArrangement = Arrangement.SpaceEvenly
         ) {
             // Trending
-            if (Regex("trending").containsMatchIn(catagory.lowercase())) {
+            if (trending) {
                 Box(
                     modifier = Modifier.padding(start = 4.dp),
                     contentAlignment = Alignment.CenterStart
