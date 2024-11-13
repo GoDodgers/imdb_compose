@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.imdb_compose.domain.ActorDetail
 import com.imdb_compose.domain.Images
 import com.imdb_compose.domain.MovieApi
+import com.imdb_compose.domain.MovieDetail
 import com.imdb_compose.domain.PeopleApi
 import com.imdb_compose.domain.TvApi
 import com.imdb_compose.domain.TvDetails
@@ -32,6 +33,13 @@ class CatagoryPageViewModel @AssistedInject constructor(
         fun create(id: Int, catagory: String): CatagoryPageViewModel
     }
 
+    // Movie
+    private val _movieDetails: MutableStateFlow<MovieDetail?> = MutableStateFlow(null)
+    val movieDetails: StateFlow<MovieDetail?> = _movieDetails.asStateFlow()
+
+    private val _movieImages: MutableStateFlow<Images?> = MutableStateFlow(null)
+    val movieImages: StateFlow<Images?> = _movieImages.asStateFlow()
+
     // Television
     private val _tvDetails: MutableStateFlow<TvDetails?> = MutableStateFlow(null)
     val tvDetails: StateFlow<TvDetails?> = _tvDetails.asStateFlow()
@@ -45,11 +53,10 @@ class CatagoryPageViewModel @AssistedInject constructor(
 
     init {
         viewModelScope.launch {
-//            if (listOf("").contains(catagory)) {}
             when (catagory) {
-//                "Movies of the week"
-//                "Upcoming movies"
-//                "Trending movies"
+                "Movies of the week" -> { getMovieDetails(id); getMovieImages(id) }
+                "Upcoming movies" -> { getMovieDetails(id); getMovieImages(id) }
+                "Trending movies" -> { getMovieDetails(id); getMovieImages(id) }
                 "Tv airing today" -> { getTvSeriesDetails(id); getTvSeriesImages(id) }
                 "Trending tv" -> { getTvSeriesDetails(id); getTvSeriesImages(id) }
                 "Popular actors" -> getPersonDetails(id)
@@ -58,12 +65,18 @@ class CatagoryPageViewModel @AssistedInject constructor(
             }
         }
     }
-
-    // Person
-    private suspend fun getPersonDetails(id: Int) {
+    // Movie
+    private suspend fun getMovieDetails(id: Int) {
         viewModelScope.launch {
-            val result = peopleApi.getPersonDetails(id)
-            _personDetails.value = result
+            val result = movieApi.getMovieDetails(id)
+            _movieDetails.value = result
+        }
+    }
+
+    private fun getMovieImages(id: Int) {
+        viewModelScope.launch {
+            val result = movieApi.getMovieImages(id)
+            _movieImages.value = result
         }
     }
 
@@ -72,6 +85,14 @@ class CatagoryPageViewModel @AssistedInject constructor(
         viewModelScope.launch {
             val result = tvApi.getTvSeriesDetails(id)
             _tvDetails.value = result
+        }
+    }
+
+    // Person
+    private suspend fun getPersonDetails(id: Int) {
+        viewModelScope.launch {
+            val result = peopleApi.getPersonDetails(id)
+            _personDetails.value = result
         }
     }
 

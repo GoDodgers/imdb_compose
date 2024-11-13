@@ -273,13 +273,13 @@ fun HomeScreen(
 
                                 when(catagory) {
                                     "Popular actors" -> PersonBox(catagory, popularPersons, navController)
-//                                    "Trending movies" -> MovieBox(catagory, trendingMovies, navController)
-//                                    "Movies of the week" -> MovieBox(catagory, movieListOfWeek, navController)
-//                                    "Upcoming movies" -> UpcommingBox(catagory, upcomingMovies, navController)
-//                                    "Tv airing today" -> TvBox(catagory, airingTodayTv, navController)
-//                                    "Trending tv" -> TvBox(catagory, trendingTv, navController)
-//                                    "Trending people" -> PersonBox(catagory, trendingPersons, navController)
-//                                    "Top box office" -> BoxOfficeBox(catagory, boxOffice, navController)
+                                    "Trending movies" -> MovieBox(catagory, trendingMovies, navController)
+                                    "Movies of the week" -> MovieBox(catagory, movieListOfWeek, navController)
+                                    "Upcoming movies" -> UpcommingBox(catagory, upcomingMovies, navController)
+                                    "Tv airing today" -> TvBox(catagory, airingTodayTv, navController)
+                                    "Trending tv" -> TvBox(catagory, trendingTv, navController)
+                                    "Trending people" -> PersonBox(catagory, trendingPersons, navController)
+                                    "Top box office" -> BoxOfficeBox(catagory, boxOffice, navController)
                                     else -> MovieBox(catagory, noMovies, navController)
                                 }
                             }
