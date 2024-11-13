@@ -160,10 +160,10 @@ fun Theme() {
                     viewModel.trendingMovies.collectAsState(),
                     viewModel.airingTodayTv.collectAsState(),
                     viewModel.trendingTv.collectAsState(),
-                    viewModel.boxOffice,
                     viewModel.upcomingMovies.collectAsState(),
                     viewModel.popularPersons.collectAsState(),
                     viewModel.trendingPersons.collectAsState(),
+                    viewModel.boxOffice,
                     navController = navController
                 )
             }
@@ -198,10 +198,10 @@ fun HomeScreen(
     trendingMovies: State<MovieList?>,
     airingTodayTv: State<TvList?>,
     trendingTv: State<TvList?>,
-    boxOffice: List<Map<String, String>>,
     upcomingMovies: State<MovieList?>,
     popularPersons: State<ActorList?>,
     trendingPersons: State<ActorList?>,
+    boxOffice: List<Map<String, String>>,
     navController: NavController
 ) {
     Scaffold (
@@ -1008,8 +1008,8 @@ fun Tags(txt: String) {
 }
 
 @Composable
-fun Pager(images: State<Images?>) {
-    val pagerState = rememberPagerState { images.value?.backdrops?.size!! }
+fun Pager(images: Images?) {
+    val pagerState = rememberPagerState { images?.backdrops?.size!! }
     HorizontalPager(
         state = pagerState,
         modifier = Modifier
@@ -1019,18 +1019,18 @@ fun Pager(images: State<Images?>) {
         Card(modifier = Modifier.fillMaxWidth()) {
             ImageAsync(
                 backDropPath = when (i) {
-                    0 -> images.value?.backdrops!![0].file_path
-                    1 -> images.value?.backdrops!![1].file_path
-                    2 -> images.value?.backdrops!![2].file_path
-                    3 -> images.value?.backdrops!![3].file_path
-                    else -> images.value?.backdrops!![4].file_path
+                    0 -> images?.backdrops!![0].file_path
+                    1 -> images?.backdrops!![1].file_path
+                    2 -> images?.backdrops!![2].file_path
+                    3 -> images?.backdrops!![3].file_path
+                    else -> images?.backdrops!![4].file_path
                 },
                 aspectRatio = when (i) {
-                    0 -> images.value?.backdrops!![0].aspect_ratio
-                    1 -> images.value?.backdrops!![1].aspect_ratio
-                    2 -> images.value?.backdrops!![2].aspect_ratio
-                    3 -> images.value?.backdrops!![3].aspect_ratio
-                    else -> images.value?.backdrops!![4].aspect_ratio
+                    0 -> images.backdrops[0].aspect_ratio
+                    1 -> images.backdrops[1].aspect_ratio
+                    2 -> images.backdrops[2].aspect_ratio
+                    3 -> images.backdrops[3].aspect_ratio
+                    else -> images.backdrops[4].aspect_ratio
                 },
                 contentDescription = ""
             )

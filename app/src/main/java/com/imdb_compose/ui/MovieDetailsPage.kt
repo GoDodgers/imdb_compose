@@ -73,17 +73,21 @@ fun MovieDetailsPage(
                     .padding(paddingValues = paddingValues),
                 contentAlignment = Alignment.TopStart
             ) {
-                val movieDetails = viewModel.movieDetails.collectAsState()
-                val movieImages = viewModel.movieImages.collectAsState()
+                val movieDetails by lazy {
+                    viewModel.movieDetails.value
+                }
+                val movieImages by lazy {
+                    viewModel.movieImages.value
+                }
 
-                movieDetails.value?.let { details ->
+                movieDetails.let { details ->
                     Column {
                         LazyColumn {
                             item {
                                 // Title
                                 Text(
                                     modifier = Modifier.padding(start = 6.dp),
-                                    text = details.title,
+                                    text = details!!.title,
                                     lineHeight = 50.sp,
                                     fontSize = MaterialTheme.typography.displayMedium.fontSize,
                                     fontWeight = MaterialTheme.typography.displayMedium.fontWeight,
@@ -109,12 +113,12 @@ fun MovieDetailsPage(
                                 Row (modifier = Modifier.padding(start = 8.dp)) {
                                     AsyncImage(
                                         modifier = Modifier.width(170.dp),
-                                        model = "${ Resources.BASE_IMAGE_URL }${ Resources.IMAGE_PATH }${ details.poster_path }",
+                                        model = "${ Resources.BASE_IMAGE_URL }${ Resources.IMAGE_PATH }${ details?.poster_path }",
                                         contentDescription = ""
                                     )
                                     Text(
                                         modifier = Modifier.padding(horizontal = 8.dp),
-                                        text = details.overview,
+                                        text = details!!.overview,
                                         overflow = TextOverflow.Ellipsis,
                                         maxLines = 10
                                     )
@@ -123,7 +127,7 @@ fun MovieDetailsPage(
                             // tags
                             item {
                                 LazyRow {
-                                    details.genres.forEachIndexed { i, genre ->
+                                    details?.genres?.forEachIndexed { i, genre ->
                                         item {
                                             Box(
                                                 modifier = Modifier

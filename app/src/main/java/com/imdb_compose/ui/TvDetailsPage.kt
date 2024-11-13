@@ -64,8 +64,13 @@ fun TvDetailsPage(
         }
 
         if (viewModel.tvDetails.value?.id == id) {
-            val seriesDetails = viewModel.tvDetails.collectAsState()
-            val seriesImages = viewModel.tvImages.collectAsState()
+            val seriesDetails by lazy {
+                viewModel.tvDetails.value
+            }
+
+            val seriesImages by lazy {
+                viewModel.tvImages.value
+            }
 
             Box(
                 modifier = Modifier
@@ -73,7 +78,7 @@ fun TvDetailsPage(
                     .fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
-                seriesDetails.value?.let { details ->
+                seriesDetails?.let { details ->
                     LazyColumn {
                         item {
                             // Title

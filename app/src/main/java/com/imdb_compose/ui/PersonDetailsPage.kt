@@ -63,10 +63,12 @@ fun PersonDetailsPage(
         val viewModel = hiltViewModel<CatagoryPageViewModel, CatagoryPageViewModel.DetailViewModelFactory> { factory ->
             factory.create(id, catagory)
         }
-        val personDetails = viewModel.personDetails.collectAsState()
+        val personDetails by lazy {
+            viewModel.personDetails.value
+        }
 
         if (viewModel.personDetails.value?.id == id) {
-            personDetails.value?.let { details ->
+            personDetails?.let { details ->
                 Column(
                     modifier = Modifier
                         .padding(paddingValues)
@@ -100,16 +102,12 @@ fun PersonDetailsPage(
                         }
 
                         Column(modifier = Modifier.padding(start = 8.dp)) {
-                            details.biography.let { bio ->
-                                Text(
-                                    text = bio,
-                                    maxLines = 6,
-                                    overflow = TextOverflow.Ellipsis
-                                )
-                            }
-                            details.birthday.let { bDay ->
-                                Text(text = "Born: ${bDay}")
-                            }
+                            Text(
+                                text = details.biography,
+                                maxLines = 6,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                            Text(text = "Born: ${ details.birthday }")
                         }
                     }
                     // Add to favorits

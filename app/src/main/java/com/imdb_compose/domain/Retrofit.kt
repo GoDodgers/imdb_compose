@@ -64,9 +64,6 @@ interface TvApi {
     @GET("${ AIRING_TODAY_TV_PATH }?language=en-US&api_key=${ BuildConfig.API_KEY }")
     suspend fun getAiringTodayTv(): TvList
 
-//    @GET("3/tv/{id}/images/{img_path}?api_key=${BuildConfig.API_KEY}")
-//    suspend fun getTvImg(@Path("id") id: Int, @Path("img_path") imgPath: String): ImageResults
-
     @GET("${ TV_SERIES_DETAILS_PATH }?api_key=${ BuildConfig.API_KEY }")
     suspend fun getTvSeriesDetails(@Path("id") id: Int): TvDetails
 

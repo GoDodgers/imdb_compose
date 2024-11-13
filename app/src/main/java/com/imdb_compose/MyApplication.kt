@@ -7,9 +7,12 @@ import coil.disk.DiskCache
 import coil.memory.MemoryCache
 import coil.request.CachePolicy
 import coil.util.DebugLogger
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.HiltAndroidApp
 import okhttp3.Call
 import okhttp3.OkHttpClient
+import javax.inject.Inject
 
 @HiltAndroidApp
 class MyApplication: Application(), ImageLoaderFactory {
