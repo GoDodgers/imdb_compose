@@ -2,9 +2,14 @@ package com.imdb_compose.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.imdb_compose.domain.Images
 import com.imdb_compose.domain.MovieApi
 import com.imdb_compose.domain.PeopleApi
 import com.imdb_compose.domain.TvApi
+import com.imdb_compose.domain.TvDetails
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -12,55 +17,46 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-@HiltViewModel
-class CatagoryPageViewModel @Inject constructor(
+@HiltViewModel(assistedFactory = CatagoryPageViewModel.DetailViewModelFactory::class)
+class CatagoryPageViewModel @AssistedInject constructor(
+    @Assisted val id: Int,
     private val movieApi: MovieApi,
     private val tvApi: TvApi,
     private val peopleApi: PeopleApi
 ) : ViewModel() {
-    val BASE_URL = "https://api.themoviedb.org/"
 
-//    private val _trendingTv: MutableStateFlow<TvList?> = MutableStateFlow(null)
-//    val trendingTv: StateFlow<TvList?> = _trendingTv.asStateFlow()
-
-    private val _tvImgs: MutableStateFlow<ImageResults?> = MutableStateFlow(null)
-    val tvImgs: StateFlow<ImageResults?> = _tvImgs.asStateFlow()
-
-
-    /**
-     * "backdrops": [
-     *     {
-     *       "aspect_ratio": 1.777,
-     *       "height": 1688,
-     *       "iso_639_1": null,
-     *       "file_path": "/AvH03Lj5lMYxmlPc7prNQLWw6JY.jpg",
-     *       "vote_average": 5.714,
-     *       "vote_count": 7,
-     *       "width": 3000
-     *     },
-     *     ...
-     */
-
-    init {
-        // https://api.themoviedb.org/3/tv/{series_id}/images
+    @AssistedFactory
+    interface DetailViewModelFactory {
+        fun create(id: Int): CatagoryPageViewModel
     }
 
-//    suspend fun getTvImage(id: Int, imgPath: String) {
-//        viewModelScope.launch {
-//            val result = tvApi.getTvImg(id, imgPath)
-//            _tvImgs.value = result
-//        }
-//    }
+    // Television
+    private val _tvDetails: MutableStateFlow<TvDetails?> = MutableStateFlow(null)
+    val tvDetails: StateFlow<TvDetails?> = _tvDetails.asStateFlow()
+
+    private val _tvImages: MutableStateFlow<Images?> = MutableStateFlow(null)
+    val tvImages: StateFlow<Images?> = _tvImages.asStateFlow()
+
+
+    init {
+        viewModelScope.launch {
+            getTvSeriesDetails(id)
+            getTvSeriesImages(id)
+        }
+    }
+
+    suspend fun getTvSeriesDetails(id: Int) {
+        viewModelScope.launch {
+            val result = tvApi.getTvSeriesDetails(id)
+            _tvDetails.value = result
+        }
+    }
+
+    suspend fun getTvSeriesImages(id: Int) {
+        viewModelScope.launch {
+            val result = tvApi.getTvSeriesImages(id)
+            _tvImages.value = result
+        }
+    }
 
 }
-
-data class ImageResults(
-    val backdrops: List<Img>
-)
-
-data class Img(
-    val file_path: String,
-    val height: Int,
-    val width: Int,
-    val aspect_ratio: Float
-)

@@ -988,16 +988,14 @@ fun ImageAsync(
 
 @Composable
 fun Tags(txt: String) {
-    Box(
-        modifier = Modifier
-            .shadow(8.dp)
-    ) {
+    Box(modifier = Modifier.shadow(8.dp)) {
         Box(
             modifier = Modifier
                 .shadow(8.dp)
+                .background(color = gray300)
         ) {
             Text(
-                modifier = Modifier.padding(all = 8.dp),
+                modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
                 text = txt,
                 color = Color.White
             )
@@ -1086,9 +1084,7 @@ fun Carousel(images: State<Images?>) {
 @Composable
 fun isLoading() {
     CircularProgressIndicator(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(128.dp),
+        modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.outline
     )
 }

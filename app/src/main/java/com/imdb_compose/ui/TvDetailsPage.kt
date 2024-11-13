@@ -30,7 +30,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewModelScope
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.compose.ripeMango
@@ -40,7 +40,6 @@ import com.imdb_compose.Tags
 import com.imdb_compose.TopBar
 import com.imdb_compose.domain.Resources
 import com.imdb_compose.isLoading
-import kotlinx.coroutines.launch
 
 @SuppressLint("CoroutineCreationDuringComposition", "StateFlowValueCalledInComposition")
 @Composable
@@ -59,105 +58,104 @@ fun TvDetailsPage(
             BottomBar(navController = navController)
         }
     ) { paddingValues ->
-//        viewModel.viewModelScope.launch {
-//            viewModel.getTvSeriesDetails(id)
-//            viewModel.getTvSeriesImages(id)
-//        }
-//
-//        if (viewModel.tvDetails.value?.id == id) {
-//            val seriesDetails = viewModel.tvDetails.collectAsState()
-//            val seriesImages = viewModel.tvImages.collectAsState()
-//
-//            Box(
-//                modifier = Modifier
-//                    .padding(paddingValues)
-//                    .fillMaxSize(),
-//                contentAlignment = Alignment.Center
-//            ) {
-//                seriesDetails.value?.let { details ->
-//                    LazyColumn {
-//                        item {
-//                            // Title
-//                            Text(
-//                                modifier = Modifier.padding(start = 6.dp),
-//                                text = details.name,
-//                                lineHeight = 50.sp,
-//                                fontStyle = MaterialTheme.typography.displayMedium.fontStyle
-//                            )
-//                            // Year Rating Duration
-//                            Row (
-//                                modifier = Modifier
-//                                    .fillMaxWidth(0.4f)
-//                                    .padding(start = 16.dp, bottom = 8.dp),
-//                                horizontalArrangement = Arrangement.SpaceBetween
-//                            ) {
-//                                Text("${ details.first_air_date.substring(0, 4) } - ${ details.last_air_date.substring(0, 4) }")
-//                                Text("${ details.original_language.uppercase() }")
-//                            }
-//
-//                            Pager(images = seriesImages)
-//                        }
-//                        // Image & description
-//                        item {
-//                            Row (modifier = Modifier.padding(start = 8.dp)) {
-//                                AsyncImage(
-//                                    modifier = Modifier.width(170.dp),
-//                                    model = "${ Resources.BASE_IMAGE_URL }${ Resources.IMAGE_PATH }${ details.poster_path }",
-//                                    contentDescription = ""
-//                                )
-//                                Text(
-//                                    modifier = Modifier.padding(horizontal = 8.dp),
-//                                    text = details.overview,
-//                                    overflow = TextOverflow.Ellipsis,
-//                                    maxLines = 10
-//                                )
-//                            }
-//                        }
-//                        // tags
-//                        item {
-//                            LazyRow {
-//                                details.genres.forEachIndexed { i, genre ->
-//                                    item {
-//                                        Box(
-//                                            modifier = Modifier
-//                                                .padding(start = 16.dp)
-//                                                .padding(vertical = 8.dp)
-//                                        ) {
-//                                            Tags(txt = genre.name)
-//                                            Spacer(modifier = Modifier.width(8.dp))
-//                                        }
-//                                    }
-//                                }
-//                            }
-//                        }
-//                        // Add to watchlist
-//                        item {
-//                            Button(
-//                                modifier = Modifier
-//                                    .fillMaxWidth()
-//                                    .height(40.dp)
-//                                    .padding(horizontal = 8.dp),
-//                                shape = RoundedCornerShape(4.dp),
-//                                onClick = { /*TODO*/ },
-//                                colors = ButtonColors(
-//                                    containerColor = ripeMango,
-//                                    contentColor = Color.White,
-//                                    disabledContainerColor = Color.Red,
-//                                    disabledContentColor = Color.White,
-//                                )
-//                            ) {
-//                                Icon(imageVector = Icons.Outlined.Add, contentDescription = "", tint = Color.Black)
-//                                Text(text = "  Add to Watchlist", color = Color.Black)
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//        } else {
+        val viewModel = hiltViewModel<CatagoryPageViewModel, CatagoryPageViewModel.DetailViewModelFactory> { factory ->
+            factory.create(id)
+        }
+
+        if (viewModel.tvDetails.value?.id == id) {
+            val seriesDetails = viewModel.tvDetails.collectAsState()
+            val seriesImages = viewModel.tvImages.collectAsState()
+
+            Box(
+                modifier = Modifier
+                    .padding(paddingValues)
+                    .fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                seriesDetails.value?.let { details ->
+                    LazyColumn {
+                        item {
+                            // Title
+                            Text(
+                                modifier = Modifier.padding(start = 6.dp),
+                                text = details.name,
+                                lineHeight = 50.sp,
+                                fontStyle = MaterialTheme.typography.displayMedium.fontStyle
+                            )
+                            // Year Rating Duration
+                            Row (
+                                modifier = Modifier
+                                    .fillMaxWidth(0.4f)
+                                    .padding(start = 16.dp, bottom = 8.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text("${ details.first_air_date.substring(0, 4) } - ${ details.last_air_date.substring(0, 4) }")
+                                Text("${ details.original_language.uppercase() }")
+                            }
+
+                            Pager(images = seriesImages)
+                        }
+                        // Image & description
+                        item {
+                            Row (modifier = Modifier.padding(start = 8.dp)) {
+                                AsyncImage(
+                                    modifier = Modifier.width(170.dp),
+                                    model = "${ Resources.BASE_IMAGE_URL }${ Resources.IMAGE_PATH }${ details.poster_path }",
+                                    contentDescription = ""
+                                )
+                                Text(
+                                    modifier = Modifier.padding(horizontal = 8.dp),
+                                    text = details.overview,
+                                    overflow = TextOverflow.Ellipsis,
+                                    maxLines = 10
+                                )
+                            }
+                        }
+                        // tags
+                        item {
+                            LazyRow {
+                                details.genres.forEachIndexed { i, genre ->
+                                    item {
+                                        Box(
+                                            modifier = Modifier
+                                                .padding(start = 16.dp)
+                                                .padding(vertical = 8.dp)
+                                        ) {
+                                            Tags(txt = genre.name)
+                                            Spacer(modifier = Modifier.width(8.dp))
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        // Add to watchlist
+                        item {
+                            Button(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(40.dp)
+                                    .padding(horizontal = 8.dp),
+                                shape = RoundedCornerShape(4.dp),
+                                onClick = { /*TODO*/ },
+                                colors = ButtonColors(
+                                    containerColor = ripeMango,
+                                    contentColor = Color.White,
+                                    disabledContainerColor = Color.Red,
+                                    disabledContentColor = Color.White,
+                                )
+                            ) {
+                                Icon(imageVector = Icons.Outlined.Add, contentDescription = "", tint = Color.Black)
+                                Text(text = "  Add to Watchlist", color = Color.Black)
+                            }
+                        }
+                    }
+                }
+            }
+        } else {
             Column(modifier = Modifier.padding(paddingValues)) {
                 isLoading()
                 Text(text = "Loading....")
             }
-//        }
+        }
     }
 }
