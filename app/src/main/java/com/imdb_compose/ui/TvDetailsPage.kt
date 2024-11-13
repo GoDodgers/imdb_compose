@@ -44,8 +44,9 @@ import com.imdb_compose.isLoading
 @SuppressLint("CoroutineCreationDuringComposition", "StateFlowValueCalledInComposition")
 @Composable
 fun TvDetailsPage(
-    show: String,
     id: Int,
+    show: String,
+    catagory: String,
     navController: NavController,
     clickHandlerBackButton: () -> Unit
 ) {
@@ -59,7 +60,7 @@ fun TvDetailsPage(
         }
     ) { paddingValues ->
         val viewModel = hiltViewModel<CatagoryPageViewModel, CatagoryPageViewModel.DetailViewModelFactory> { factory ->
-            factory.create(id)
+            factory.create(id, catagory)
         }
 
         if (viewModel.tvDetails.value?.id == id) {

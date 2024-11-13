@@ -8,9 +8,9 @@ interface Navigator {
     @Serializable
     data class CategoryPage(val catagory: String): Navigator
     @Serializable
-    data class MovieDetailsPage(val title: String, val id: Int): Navigator
+    data class MovieDetailsPage(val id: Int, val title: String, val catagory: String): Navigator
     @Serializable
-    data class PersonDetailsPage(val person: String, val id: Int): Navigator
+    data class PersonDetailsPage(val id: Int, val person: String, val catagory: String): Navigator
     @Serializable
-    data class TvDetailsPage(val show: String, val id: Int): Navigator
+    data class TvDetailsPage(val id: Int, val show: String, val catagory: String): Navigator
 }

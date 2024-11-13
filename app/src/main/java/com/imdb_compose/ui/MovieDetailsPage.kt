@@ -45,9 +45,9 @@ import kotlinx.coroutines.launch
 @SuppressLint("CoroutineCreationDuringComposition", "StateFlowValueCalledInComposition")
 @Composable
 fun MovieDetailsPage(
-    title: String,
     id: Int,
-    viewModel: HomeScreenViewModel,
+    title: String,
+    catagory: String,
     navController: NavController,
     clickHandlerBackButton: () -> Unit
 ) {
@@ -61,110 +61,119 @@ fun MovieDetailsPage(
             BottomBar(navController)
         }
     ) { paddingValues ->
-        viewModel.viewModelScope.launch {
-            viewModel.getMovieDetails(id)
-            viewModel.getMovieImages(id)
-        }
+//        viewModel.viewModelScope.launch {
+//            viewModel.getMovieDetails(id)
+//            viewModel.getMovieImages(id)
+//        }
 
-        if (viewModel.movieDetails.value?.id == id && viewModel.movieImages.value?.id == id) {
+//        if (viewModel.movieDetails.value?.id == id && viewModel.movieImages.value?.id == id) {
+//            Box(
+//                modifier = Modifier
+//                    .fillMaxSize()
+//                    .padding(paddingValues = paddingValues),
+//                contentAlignment = Alignment.TopStart
+//            ) {
+//                val movieDetails = viewModel.movieDetails.collectAsState()
+//                val movieImages = viewModel.movieImages.collectAsState()
+//
+//                movieDetails.value?.let { details ->
+//                    Column {
+//                        LazyColumn {
+//                            item {
+//                                // Title
+//                                Text(
+//                                    modifier = Modifier.padding(start = 6.dp),
+//                                    text = details.title,
+//                                    lineHeight = 50.sp,
+//                                    fontSize = MaterialTheme.typography.displayMedium.fontSize,
+//                                    fontWeight = MaterialTheme.typography.displayMedium.fontWeight,
+//                                    fontStyle = MaterialTheme.typography.displayMedium.fontStyle,
+//                                    fontFamily = MaterialTheme.typography.displayMedium.fontFamily
+//                                )
+//                                // Year Rating Duration
+//                                Row (
+//                                    modifier = Modifier
+//                                        .fillMaxWidth(0.4f)
+//                                        .padding(start = 16.dp, bottom = 8.dp),
+//                                    horizontalArrangement = Arrangement.SpaceBetween
+//                                ) {
+//                                    Text(details.release_date.substring(0, 4))
+//                                    Text("${ if (details.adult) "R" else "PG-13" }")
+//                                    Text("${ details.runtime / 60 }h ${ details.runtime % 60 }m")
+//                                }
+//
+//                                Pager(images = movieImages)
+//                            }
+//                            // Image & description
+//                            item {
+//                                Row (modifier = Modifier.padding(start = 8.dp)) {
+//                                    AsyncImage(
+//                                        modifier = Modifier.width(170.dp),
+//                                        model = "${ Resources.BASE_IMAGE_URL }${ Resources.IMAGE_PATH }${ details.poster_path }",
+//                                        contentDescription = ""
+//                                    )
+//                                    Text(
+//                                        modifier = Modifier.padding(horizontal = 8.dp),
+//                                        text = details.overview,
+//                                        overflow = TextOverflow.Ellipsis,
+//                                        maxLines = 10
+//                                    )
+//                                }
+//                            }
+//                            // tags
+//                            item {
+//                                LazyRow {
+//                                    details.genres.forEachIndexed { i, genre ->
+//                                        item {
+//                                            Box(
+//                                                modifier = Modifier
+//                                                    .padding(start = 16.dp)
+//                                                    .padding(vertical = 8.dp)
+//                                            ) {
+//                                                Tags(txt = genre.name)
+//                                                Spacer(modifier = Modifier.width(8.dp))
+//                                            }
+//                                        }
+//                                    }
+//                                }
+//                            }
+//                            // Add to watchlist
+//                            item {
+//                                Button(
+//                                    modifier = Modifier
+//                                        .fillMaxWidth()
+//                                        .height(40.dp)
+//                                        .padding(horizontal = 8.dp),
+//                                    shape = RoundedCornerShape(4.dp),
+//                                    onClick = { /*TODO*/ },
+//                                    colors = ButtonColors(
+//                                        containerColor = ripeMango,
+//                                        contentColor = Color.White,
+//                                        disabledContainerColor = Color.Red,
+//                                        disabledContentColor = Color.White,
+//                                    )
+//                                ) {
+//                                    Icon(imageVector = Icons.Outlined.Add, contentDescription = "", tint = Color.Black)
+//                                    Text(text = "  Add to Watchlist", color = Color.Black)
+//                                }
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//        } else {
             Box(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues = paddingValues),
-                contentAlignment = Alignment.TopStart
+                    .padding(paddingValues)
+                    .fillMaxSize(),
+                contentAlignment = Alignment.Center
             ) {
-                val movieDetails = viewModel.movieDetails.collectAsState()
-                val movieImages = viewModel.movieImages.collectAsState()
-
-                movieDetails.value?.let { details ->
-                    Column {
-                        LazyColumn {
-                            item {
-                                // Title
-                                Text(
-                                    modifier = Modifier.padding(start = 6.dp),
-                                    text = details.title,
-                                    lineHeight = 50.sp,
-                                    fontSize = MaterialTheme.typography.displayMedium.fontSize,
-                                    fontWeight = MaterialTheme.typography.displayMedium.fontWeight,
-                                    fontStyle = MaterialTheme.typography.displayMedium.fontStyle,
-                                    fontFamily = MaterialTheme.typography.displayMedium.fontFamily
-                                )
-                                // Year Rating Duration
-                                Row (
-                                    modifier = Modifier
-                                        .fillMaxWidth(0.4f)
-                                        .padding(start = 16.dp, bottom = 8.dp),
-                                    horizontalArrangement = Arrangement.SpaceBetween
-                                ) {
-                                    Text(details.release_date.substring(0, 4))
-                                    Text("${ if (details.adult) "R" else "PG-13" }")
-                                    Text("${ details.runtime / 60 }h ${ details.runtime % 60 }m")
-                                }
-
-                                Pager(images = movieImages)
-                            }
-                            // Image & description
-                            item {
-                                Row (modifier = Modifier.padding(start = 8.dp)) {
-                                    AsyncImage(
-                                        modifier = Modifier.width(170.dp),
-                                        model = "${ Resources.BASE_IMAGE_URL }${ Resources.IMAGE_PATH }${ details.poster_path }",
-                                        contentDescription = ""
-                                    )
-                                    Text(
-                                        modifier = Modifier.padding(horizontal = 8.dp),
-                                        text = details.overview,
-                                        overflow = TextOverflow.Ellipsis,
-                                        maxLines = 10
-                                    )
-                                }
-                            }
-                            // tags
-                            item {
-                                LazyRow {
-                                    details.genres.forEachIndexed { i, genre ->
-                                        item {
-                                            Box(
-                                                modifier = Modifier
-                                                    .padding(start = 16.dp)
-                                                    .padding(vertical = 8.dp)
-                                            ) {
-                                                Tags(txt = genre.name)
-                                                Spacer(modifier = Modifier.width(8.dp))
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            // Add to watchlist
-                            item {
-                                Button(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(40.dp)
-                                        .padding(horizontal = 8.dp),
-                                    shape = RoundedCornerShape(4.dp),
-                                    onClick = { /*TODO*/ },
-                                    colors = ButtonColors(
-                                        containerColor = ripeMango,
-                                        contentColor = Color.White,
-                                        disabledContainerColor = Color.Red,
-                                        disabledContentColor = Color.White,
-                                    )
-                                ) {
-                                    Icon(imageVector = Icons.Outlined.Add, contentDescription = "", tint = Color.Black)
-                                    Text(text = "  Add to Watchlist", color = Color.Black)
-                                }
-                            }
-                        }
-                    }
+                Column {
+                    isLoading()
+                    Text("Loading...")
                 }
             }
-        } else {
-            isLoading()
-            Text(text = "Loading...")
-        }
+//        }
     }
 }
 

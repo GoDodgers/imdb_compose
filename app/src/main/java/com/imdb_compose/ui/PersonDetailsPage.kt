@@ -28,12 +28,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.compose.gray500
 import com.example.compose.ripeMango
 import com.imdb_compose.BottomBar
+import com.imdb_compose.ImageAsync
 import com.imdb_compose.TopBar
 import com.imdb_compose.domain.Resources
 import com.imdb_compose.isLoading
@@ -42,9 +44,9 @@ import kotlinx.coroutines.launch
 @SuppressLint("CoroutineCreationDuringComposition", "StateFlowValueCalledInComposition")
 @Composable
 fun PersonDetailsPage(
-    person: String,
     id: Int,
-    viewModel: HomeScreenViewModel,
+    person: String,
+    catagory: String,
     navController: NavController,
     clickHandlerBackButton: () -> Unit
 ) {
@@ -58,98 +60,80 @@ fun PersonDetailsPage(
             BottomBar(navController)
         }
     ) { paddingValues ->
-        viewModel.viewModelScope.launch {
-            viewModel.getPersonDetails(id)
+        val viewModel = hiltViewModel<CatagoryPageViewModel, CatagoryPageViewModel.DetailViewModelFactory> { factory ->
+            factory.create(id, catagory)
         }
+        val personDetails = viewModel.personDetails.collectAsState()
 
         if (viewModel.personDetails.value?.id == id) {
-            Box(
-                modifier = Modifier
-                    .padding(paddingValues)
-                    .fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                val personDetails = viewModel.personDetails.collectAsState()
-                Box(
+            personDetails.value?.let { details ->
+                Column(
                     modifier = Modifier
+                        .padding(paddingValues)
+                        .padding(horizontal = 8.dp)
                         .fillMaxSize()
-                        .padding(horizontal = 16.dp)
+                        .shadow(8.dp)
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .shadow(8.dp),
-                    ) {
-                        personDetails.value?.let { details ->
-                            Box(modifier = Modifier.padding(start = 8.dp, top = 16.dp, end = 8.dp)) {
-                                Column {
-                                    // Name & Known For
-                                    Column {
-                                        Text(
-                                            text = details.name,
-                                            fontSize = MaterialTheme.typography.headlineLarge.fontSize,
-                                            fontWeight = MaterialTheme.typography.headlineLarge.fontWeight,
-                                            fontStyle = MaterialTheme.typography.headlineLarge.fontStyle,
-                                            fontFamily = MaterialTheme.typography.headlineLarge.fontFamily
-                                        )
-                                        Spacer(modifier = Modifier.height(8.dp))
-                                        Text(
-                                            text = details.known_for_department,
-                                            fontSize = MaterialTheme.typography.titleMedium.fontSize,
-                                            fontWeight = MaterialTheme.typography.titleMedium.fontWeight,
-                                            fontStyle = MaterialTheme.typography.titleMedium.fontStyle,
-                                            fontFamily = MaterialTheme.typography.titleMedium.fontFamily
-                                        )
-                                        Spacer(modifier = Modifier.height(8.dp))
-                                    }
-                                    // Profile Pic & Bio
-                                    Row (
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .height(240.dp)
-                                    ) {
-                                        Box(modifier = Modifier.width(125.dp)) {
-                                            AsyncImage(
-                                                model = "${ Resources.BASE_IMAGE_URL }${ Resources.IMAGE_PATH }${ details.profile_path }",
-                                                contentDescription = null,
-                                                contentScale = ContentScale.FillWidth
-                                            )
-                                        }
+                    // Name & Known For
+                    Column(modifier = Modifier) {
+                        Text(
+                            text = details.name,
+                            fontStyle = MaterialTheme.typography.headlineLarge.fontStyle
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = details.known_for_department,
+                            fontStyle = MaterialTheme.typography.titleMedium.fontStyle
+                        )
 
-                                        Box(modifier = Modifier.padding(start = 8.dp)) {
-                                            Column {
-                                                details.biography.let { bio ->
-                                                    Text(
-                                                        text = bio,
-                                                        maxLines = 6,
-                                                        overflow = TextOverflow.Ellipsis
-                                                    )
-                                                }
-                                                details.birthday.let { bDay ->
-                                                    Text(text = "Born: ${ bDay }")
-                                                }
-                                            }
-                                        }
-                                    }
-                                    // Add to favorits
-                                    Button(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .height(40.dp),
-                                        shape = RoundedCornerShape(4.dp),
-                                        onClick = { /*TODO*/ },
-                                        colors = ButtonColors(
-                                            containerColor = ripeMango,
-                                            contentColor = Color.White,
-                                            disabledContainerColor = Color.Red,
-                                            disabledContentColor = Color.White,
-                                        )
-                                    ) {
-                                        Icon(imageVector = Icons.Outlined.Add, contentDescription = "", tint = Color.Black)
-                                        Text(text = "  Add to favorites", color = Color.Black)
-                                    }
-                                }
+                        Spacer(modifier = Modifier.height(4.dp))
+                    }
+                    // Profile Pic & Bio
+                    Row(modifier = Modifier.fillMaxWidth()) {
+                        Column(modifier = Modifier.width(170.dp)) {
+                            ImageAsync(
+                                backDropPath = details.profile_path,
+                                contentDescription = "",
+                                clip = true,
+                                crop = false
+                            )
+                        }
+
+                        Column(modifier = Modifier.padding(start = 8.dp)) {
+                            details.biography.let { bio ->
+                                Text(
+                                    text = bio,
+                                    maxLines = 6,
+                                    overflow = TextOverflow.Ellipsis
+                                )
                             }
+                            details.birthday.let { bDay ->
+                                Text(text = "Born: ${bDay}")
+                            }
+                        }
+                    }
+                    // Add to favorits
+                    Row(modifier = Modifier) {
+                        Button(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(60.dp)
+                                .padding(top = 16.dp),
+                            shape = RoundedCornerShape(4.dp),
+                            onClick = { /*TODO*/ },
+                            colors = ButtonColors(
+                                containerColor = ripeMango,
+                                contentColor = Color.White,
+                                disabledContainerColor = Color.Red,
+                                disabledContentColor = Color.White,
+                            )
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.Add,
+                                contentDescription = "",
+                                tint = Color.Black
+                            )
+                            Text(text = "  Add to favorites", color = Color.Black)
                         }
                     }
                 }

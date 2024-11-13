@@ -173,15 +173,15 @@ fun Theme() {
             }
             composable<Navigator.MovieDetailsPage> {
                 val args =  it.toRoute<Navigator.MovieDetailsPage>()
-                MovieDetailsPage(args.title, args.id, viewModel = viewModel, navController = navController, { navController.popBackStack() })
+                MovieDetailsPage(args.id, args.title, args.catagory, navController = navController, { navController.popBackStack() })
             }
             composable<Navigator.PersonDetailsPage> {
                 val args =  it.toRoute<Navigator.PersonDetailsPage>()
-                PersonDetailsPage(args.person, args.id, viewModel = viewModel, navController = navController, { navController.popBackStack() })
+                PersonDetailsPage(args.id, args.person, args.catagory, navController = navController, { navController.popBackStack() })
             }
             composable<Navigator.TvDetailsPage> {
                 val args =  it.toRoute<Navigator.TvDetailsPage>()
-                TvDetailsPage(args.show, args.id, navController = navController, { navController.popBackStack() })
+                TvDetailsPage(args.id, args.show, args.catagory, navController = navController, { navController.popBackStack() })
             }
         }
     }
@@ -273,13 +273,13 @@ fun HomeScreen(
 
                                 when(catagory) {
                                     "Popular actors" -> PersonBox(catagory, popularPersons, navController)
-                                    "Trending movies" -> MovieBox(catagory, trendingMovies, navController)
-                                    "Movies of the week" -> MovieBox(catagory, movieListOfWeek, navController)
-                                    "Upcoming movies" -> UpcommingBox(catagory, upcomingMovies, navController)
-                                    "Tv airing today" -> TvBox(catagory, airingTodayTv, navController)
-                                    "Trending tv" -> TvBox(catagory, trendingTv, navController)
-                                    "Trending people" -> PersonBox(catagory, trendingPersons, navController)
-                                    "Top box office" -> BoxOfficeBox(catagory, boxOffice, navController)
+//                                    "Trending movies" -> MovieBox(catagory, trendingMovies, navController)
+//                                    "Movies of the week" -> MovieBox(catagory, movieListOfWeek, navController)
+//                                    "Upcoming movies" -> UpcommingBox(catagory, upcomingMovies, navController)
+//                                    "Tv airing today" -> TvBox(catagory, airingTodayTv, navController)
+//                                    "Trending tv" -> TvBox(catagory, trendingTv, navController)
+//                                    "Trending people" -> PersonBox(catagory, trendingPersons, navController)
+//                                    "Top box office" -> BoxOfficeBox(catagory, boxOffice, navController)
                                     else -> MovieBox(catagory, noMovies, navController)
                                 }
                             }
@@ -376,7 +376,8 @@ fun MovieBox(
                             navController.navigate(
                                 Navigator.MovieDetailsPage(
                                     title = movie.title,
-                                    id = id
+                                    id = id,
+                                    catagory = catagory
                                 )
                             )
                         },
@@ -412,7 +413,8 @@ fun TvBox(
                             navController.navigate(
                                 Navigator.TvDetailsPage(
                                     show = show.name,
-                                    id = id
+                                    id = id,
+                                    catagory = catagory
                                 )
                             )
                         },
@@ -450,7 +452,8 @@ fun PersonBox(
                             navController.navigate(
                                 Navigator.PersonDetailsPage(
                                     person = person.name,
-                                    id = id
+                                    id = id,
+                                    catagory = catagory
                                 )
                             )
                         }
@@ -563,7 +566,8 @@ fun UpcommingBox(
                             navController.navigate(
                                 Navigator.MovieDetailsPage(
                                     title = movie.title,
-                                    id = id
+                                    id = id,
+                                    catagory = catagory
                                 )
                             )
                         }
@@ -1083,8 +1087,10 @@ fun Carousel(images: State<Images?>) {
 
 @Composable
 fun isLoading() {
-    CircularProgressIndicator(
-        modifier = Modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.outline
-    )
+    Box(contentAlignment = Alignment.Center) {
+        CircularProgressIndicator(
+            modifier = Modifier.fillMaxSize(fraction = 0.5f),
+            color = MaterialTheme.colorScheme.outline
+        )
+    }
 }

@@ -63,6 +63,12 @@ class HomeScreenViewModel @Inject constructor(
     private val _upcomingMovies: MutableStateFlow<MovieList?> = MutableStateFlow(null)
     val upcomingMovies: StateFlow<MovieList?> = _upcomingMovies.asStateFlow()
 
+    private val _movieDetails: MutableStateFlow<MovieDetail?> = MutableStateFlow(null)
+    val movieDetails: StateFlow<MovieDetail?> = _movieDetails.asStateFlow()
+
+    private val _movieImages: MutableStateFlow<Images?> = MutableStateFlow(null)
+    val movieImages: StateFlow<Images?> = _movieImages.asStateFlow()
+
     // Television
     private val _trendingTv: MutableStateFlow<TvList?> = MutableStateFlow(null)
     val trendingTv: StateFlow<TvList?> = _trendingTv.asStateFlow()
@@ -77,14 +83,6 @@ class HomeScreenViewModel @Inject constructor(
     private val _trendingPersons: MutableStateFlow<ActorList?> = MutableStateFlow(null)
     val trendingPersons: StateFlow<ActorList?> = _trendingPersons.asStateFlow()
 
-    private val _personDetails: MutableStateFlow<ActorDetail?> = MutableStateFlow(null)
-    val personDetails: StateFlow<ActorDetail?> = _personDetails.asStateFlow()
-
-    private val _movieDetails: MutableStateFlow<MovieDetail?> = MutableStateFlow(null)
-    val movieDetails: StateFlow<MovieDetail?> = _movieDetails.asStateFlow()
-
-    private val _movieImages: MutableStateFlow<Images?> = MutableStateFlow(null)
-    val movieImages: StateFlow<Images?> = _movieImages.asStateFlow()
 
     init {
         // Movies
@@ -131,13 +129,6 @@ class HomeScreenViewModel @Inject constructor(
         viewModelScope.launch {
             val result = movieApi.getMovieImages(id)
             _movieImages.value = result
-        }
-    }
-
-    suspend fun getPersonDetails(id: Int) {
-        viewModelScope.launch {
-            val result = peopleApi.getPersonDetails(id)
-            _personDetails.value = result
         }
     }
 }
