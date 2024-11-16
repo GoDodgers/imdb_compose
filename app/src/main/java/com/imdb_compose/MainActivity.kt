@@ -2,7 +2,6 @@
 package com.imdb_compose
 
 import android.annotation.SuppressLint
-import android.graphics.BlurMaskFilter
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
@@ -71,9 +70,7 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.ContentScale
@@ -99,24 +96,22 @@ import com.example.compose.gray100
 import com.example.compose.gray200
 import com.example.compose.gray300
 import com.example.compose.gray400
-import com.example.compose.gray500
 import com.example.compose.gray600
 import com.example.compose.ripeMango
 import com.imdb_compose.domain.Resources
 import com.imdb_compose.domain.ActorList
-import com.imdb_compose.domain.ActorResult
 import com.imdb_compose.domain.Images
 import com.imdb_compose.domain.MovieList
-import com.imdb_compose.domain.MovieResult
 import com.imdb_compose.domain.TvList
-import com.imdb_compose.domain.TvResult
 import com.imdb_compose.ui.CategoryPage
-import com.imdb_compose.ui.HomeScreenViewModel
+import com.imdb_compose.ui.viewmodel.HomeScreenViewModel
 import com.imdb_compose.ui.MovieDetailsPage
 import com.imdb_compose.ui.Navigator
 import com.imdb_compose.ui.PersonDetailsPage
 import com.imdb_compose.ui.TvDetailsPage
 import dagger.hilt.android.AndroidEntryPoint
+import java.text.SimpleDateFormat
+import java.util.Date
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -586,16 +581,9 @@ fun BoxOfficeBox(
     navController: NavController
 ) {
     // date range
-    Row (
-        Modifier
-            .padding(start = 16.dp)
-            .fillMaxWidth(0.975f)
-    ) {
+    Row (Modifier.padding(start = 8.dp)) {
         Box(
-            modifier = Modifier
-                .height(30.dp)
-                .fillMaxWidth()
-                .shadow(8.dp),
+            modifier = Modifier.height(30.dp),
             contentAlignment = Alignment.CenterStart
         ) {
             Text(
@@ -607,79 +595,51 @@ fun BoxOfficeBox(
         }
     }
 
-    Box (
-        Modifier
-            .padding(
-                start = 16.dp,
-                top = 8.dp,
-                bottom = 8.dp
-            )
-            .fillMaxWidth(0.98f)) {
-        Box(
+    Box(
+        modifier = Modifier
+            .height(680.dp)
+            .fillMaxWidth(0.99f)
+            .padding(all = 8.dp)
+            .shadow(8.dp)
+    ) {
+        Column (
             modifier = Modifier
-                .height(650.dp)
-                .fillMaxWidth(0.99f)
-                .shadow(8.dp)
+                .fillMaxSize()
+                .padding(bottom = 16.dp),
+            verticalArrangement = Arrangement.SpaceBetween
         ) {
-            Column (
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.SpaceBetween
-            ) {
-                boxOfficeNumbers.forEachIndexed { i, movieMap ->
-                    Row (
+            Spacer(modifier = Modifier.height(16.dp))
+            boxOfficeNumbers.forEachIndexed { i, movieMap ->
+                Row (
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = 64.dp, max = 80.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .heightIn(min = 64.dp, max = 80.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                            .width(72.dp)
+                            .padding(start = 8.dp, end = 8.dp),
+                        text = "${ i + 1 }",
+                        fontSize = MaterialTheme.typography.displaySmall.fontSize,
+                        textAlign = TextAlign.Center
+                    )
+
+                    Ribbon(paddingEnd = 16.dp)
+
+                    Column (
+                        modifier = Modifier
                     ) {
-                        Text(
-                            modifier = Modifier
-                                .width(72.dp)
-                                .padding(start = 8.dp, end = 8.dp),
-                            text = "${ i + 1 }",
-                            fontSize = MaterialTheme.typography.displaySmall.fontSize,
-                            textAlign = TextAlign.Center
+                        Text(text = "${ movieMap["Release"] }")
+                        Text(text = "${ movieMap["Gross"] }", textAlign = TextAlign.Center)
+                    }
+
+                    Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
+                        Icon(
+                            modifier = Modifier.padding(end = 16.dp),
+                            imageVector = Icons.Outlined.BookOnline,
+                            contentDescription = "book online"
                         )
-
-                        Box(
-                            modifier = Modifier
-                                .padding(end = 16.dp)
-                                .size(36.dp)
-                                .background(gray200.copy(alpha = 0.6f))
-                                .drawBehind {
-                                    val path = Path().apply {
-                                        moveTo(75f, 126f)
-                                        lineTo(0f, 166f)
-                                        lineTo(0f, 126f)
-                                        moveTo(45f, 126f)
-                                        lineTo(125f, 126f)
-                                        lineTo(125f, 166f)
-                                        close()
-                                    }
-                                    drawPath(path, color = gray200.copy(alpha = 0.6f))
-                                },
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                imageVector = Icons.Outlined.Add,
-                                contentDescription = "add favorite"
-                            )
-                        }
-
-                        Column (
-                            modifier = Modifier
-                        ) {
-                            Text(text = "${ movieMap["Release"] }")
-                            Text(text = "${ movieMap["Gross"] }", textAlign = TextAlign.Center)
-                        }
-
-                        Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
-                            Icon(
-                                modifier = Modifier.padding(end = 16.dp),
-                                imageVector = Icons.Outlined.BookOnline,
-                                contentDescription = "book online"
-                            )
-                        }
                     }
                 }
             }
@@ -725,6 +685,8 @@ fun BoxA(
     }
 }
 
+val releaseDateFormat = SimpleDateFormat("yyyy MMM")
+
 @Composable
 fun BoxB(
     catagory: String,
@@ -732,7 +694,7 @@ fun BoxB(
     name: String,
     details: String,
     score: String,
-    date: String,
+    date: Date,
     posterPath: String,
     onClick: (Int) -> Unit,
 ) {
@@ -747,26 +709,8 @@ fun BoxB(
                     .padding(start = 18.dp, top = 4.dp, bottom = 12.dp),
                 contentAlignment = Alignment.CenterStart
             ) {
-                //"2024-07-31"
-                val dateParts = date.split("-")
-                val monthMap = mapOf(
-                    "01" to "Jan",
-                    "02" to "Feb",
-                    "03" to "Mar",
-                    "04" to "Apr",
-                    "05" to "May",
-                    "06" to "Jun",
-                    "07" to "Jul",
-                    "08" to "Aug",
-                    "09" to "Sep",
-                    "10" to "Oct",
-                    "11" to "Nov",
-                    "12" to "Dec",
-                )
-
                 Text(
-                    text = "${monthMap[dateParts[1]]}-${dateParts[2]}",
-//                    text = date,
+                    text = releaseDateFormat.format(date),
                     fontStyle = MaterialTheme.typography.labelLarge.fontStyle,
                     color = ripeMango,
                     textAlign = TextAlign.Center
@@ -1094,3 +1038,8 @@ fun isLoading() {
         )
     }
 }
+
+
+// TODO:
+// annotation syntax
+// bottom app bar arrangement vs alignment

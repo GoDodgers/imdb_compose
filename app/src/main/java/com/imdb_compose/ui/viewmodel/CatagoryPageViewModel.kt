@@ -1,8 +1,10 @@
-package com.imdb_compose.ui
+package com.imdb_compose.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.imdb_compose.domain.ActorDetail
+import com.imdb_compose.domain.Async
+import com.imdb_compose.domain.AsyncState
 import com.imdb_compose.domain.Images
 import com.imdb_compose.domain.MovieApi
 import com.imdb_compose.domain.MovieDetail
@@ -17,7 +19,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 @HiltViewModel(assistedFactory = CatagoryPageViewModel.DetailViewModelFactory::class)
 class CatagoryPageViewModel @AssistedInject constructor(
@@ -48,8 +49,8 @@ class CatagoryPageViewModel @AssistedInject constructor(
     val tvImages: StateFlow<Images?> = _tvImages.asStateFlow()
 
     // Person
-    private val _personDetails: MutableStateFlow<ActorDetail?> = MutableStateFlow(null)
-    val personDetails: StateFlow<ActorDetail?> = _personDetails.asStateFlow()
+    private val _personDetails: MutableStateFlow<AsyncState?> = MutableStateFlow(null)
+    val personDetails: StateFlow<AsyncState?> = _personDetails.asStateFlow()
 
     init {
         viewModelScope.launch {
@@ -88,14 +89,6 @@ class CatagoryPageViewModel @AssistedInject constructor(
         }
     }
 
-    // Person
-    private suspend fun getPersonDetails(id: Int) {
-        viewModelScope.launch {
-            val result = peopleApi.getPersonDetails(id)
-            _personDetails.value = result
-        }
-    }
-
     private suspend fun getTvSeriesImages(id: Int) {
         viewModelScope.launch {
             val result = tvApi.getTvSeriesImages(id)
@@ -103,4 +96,17 @@ class CatagoryPageViewModel @AssistedInject constructor(
         }
     }
 
+    // Person
+    private suspend fun getPersonDetails(id: Int) {
+        viewModelScope.launch {
+            val loading = AsyncState(Async.Loading)
+            try {
+                 val result = peopleApi.getPersonDetails(id)
+                _personDetails.value = AsyncState(Async.Success(result))
+            } catch (e: Exception) {
+                _personDetails.value = AsyncState(Async.Error(e))
+            }
+        }
+    }
 }
+

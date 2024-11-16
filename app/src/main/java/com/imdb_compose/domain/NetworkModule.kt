@@ -17,8 +17,8 @@ object NetworkModule {
     @Singleton
     @Provides
     fun retrofit(okHttpClient: OkHttpClient): retrofit2.Retrofit {
-//        "2024-07-31
-        val gson = GsonBuilder().setDateFormat("yyyy-MM-dd'T'L:d").create()
+//        "2024-07-31"
+        val gson = GsonBuilder().setDateFormat("yyyy-MM-dd").create()
 
         return retrofit2.Retrofit.Builder()
             .baseUrl(BASE_URL)

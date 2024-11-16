@@ -1,16 +1,12 @@
-package com.imdb_compose.ui
+package com.imdb_compose.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.imdb_compose.domain.MovieApi
 import com.imdb_compose.domain.PeopleApi
 import com.imdb_compose.domain.TvApi
-import com.imdb_compose.domain.ActorDetail
 import com.imdb_compose.domain.ActorList
-import com.imdb_compose.domain.Images
-import com.imdb_compose.domain.MovieDetail
 import com.imdb_compose.domain.MovieList
-import com.imdb_compose.domain.TvDetails
 import com.imdb_compose.domain.TvList
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow

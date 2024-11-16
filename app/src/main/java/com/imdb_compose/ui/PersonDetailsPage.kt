@@ -21,25 +21,21 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
-import coil.compose.AsyncImage
-import com.example.compose.gray500
 import com.example.compose.ripeMango
 import com.imdb_compose.BottomBar
 import com.imdb_compose.ImageAsync
 import com.imdb_compose.TopBar
-import com.imdb_compose.domain.Resources
 import com.imdb_compose.isLoading
-import kotlinx.coroutines.launch
+import com.imdb_compose.ui.viewmodel.CatagoryPageViewModel
 
 @SuppressLint("CoroutineCreationDuringComposition", "StateFlowValueCalledInComposition")
 @Composable
@@ -63,12 +59,10 @@ fun PersonDetailsPage(
         val viewModel = hiltViewModel<CatagoryPageViewModel, CatagoryPageViewModel.DetailViewModelFactory> { factory ->
             factory.create(id, catagory)
         }
-        val personDetails by lazy {
-            viewModel.personDetails.value
-        }
+        val personDetails by viewModel.personDetails.collectAsState()
 
-        if (viewModel.personDetails.value?.id == id) {
-            personDetails?.let { details ->
+        if (personDetails != null) {
+            personDetails!!.status.data.let { details -> details!!
                 Column(
                     modifier = Modifier
                         .padding(paddingValues)

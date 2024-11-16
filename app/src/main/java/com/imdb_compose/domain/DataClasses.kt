@@ -1,5 +1,7 @@
 package com.imdb_compose.domain
 
+import java.util.Date
+
 data class TvList(
     val results: List<TvResult>
 )
@@ -14,6 +16,10 @@ data class TvResult(
     val popularity: String,
     val vote_average: String,
     val first_air_date: String
+)
+
+data class AsyncState(
+    val status: Async<ActorDetail> = Async.Init
 )
 
 data class ActorList(
@@ -56,7 +62,7 @@ data class MovieResult(
     val poster_path: String,
     val popularity: String,
     val vote_average: String,
-    val release_date: String
+    val release_date: Date
 )
 
 data class MovieDetail(
