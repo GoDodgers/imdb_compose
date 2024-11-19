@@ -16,8 +16,9 @@ import javax.inject.Inject
 
 @HiltAndroidApp
 class MyApplication: Application(), ImageLoaderFactory {
+    @Inject
+    lateinit var okHttpClient: OkHttpClient
     override fun newImageLoader(): ImageLoader {
-        val okHttpClient = OkHttpClient.Builder().build()
 
         return ImageLoader(this).newBuilder()
             .memoryCachePolicy(CachePolicy.ENABLED)

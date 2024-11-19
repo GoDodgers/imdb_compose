@@ -13,6 +13,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -57,6 +58,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.carousel.HorizontalMultiBrowseCarousel
 import androidx.compose.material3.carousel.rememberCarouselState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -84,6 +86,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -109,6 +112,10 @@ import com.imdb_compose.ui.MovieDetailsPage
 import com.imdb_compose.ui.Navigator
 import com.imdb_compose.ui.PersonDetailsPage
 import com.imdb_compose.ui.TvDetailsPage
+import com.imdb_compose.ui.viewmodel.CatagoryPageViewModel
+import com.imdb_compose.ui.viewmodel.MovieDetailsPageViewModel
+import com.imdb_compose.ui.viewmodel.PersonDetailsPageViewModel
+import com.imdb_compose.ui.viewmodel.TvDetailsPageViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -163,20 +170,40 @@ fun Theme() {
                 )
             }
             composable<Navigator.CategoryPage> {
-                val args =  it.toRoute<Navigator.CategoryPage>()
+                val args = it.toRoute<Navigator.CategoryPage>()
+                val catagoryPageViewModel: CatagoryPageViewModel = hiltViewModel()
                 CategoryPage(args.catagory, navController = navController, { navController.popBackStack() })
             }
             composable<Navigator.MovieDetailsPage> {
-                val args =  it.toRoute<Navigator.MovieDetailsPage>()
-                MovieDetailsPage(args.id, args.title, args.catagory, navController = navController, { navController.popBackStack() })
+                val args = it.toRoute<Navigator.MovieDetailsPage>()
+                val movieDetailsPageViewModel: MovieDetailsPageViewModel = hiltViewModel()
+                LaunchedEffect(args.id) {
+                    movieDetailsPageViewModel.getMovieDetails(args.id)
+                    movieDetailsPageViewModel.getMovieImages(args.id)
+                }
+                val movieDetails by movieDetailsPageViewModel.movieDetails.collectAsState()
+                val movieImages by movieDetailsPageViewModel.movieImages.collectAsState()
+                MovieDetailsPage(movieDetails, movieImages, args.title, navController = navController, { navController.popBackStack() })
             }
             composable<Navigator.PersonDetailsPage> {
-                val args =  it.toRoute<Navigator.PersonDetailsPage>()
-                PersonDetailsPage(args.id, args.person, args.catagory, navController = navController, { navController.popBackStack() })
+                val args = it.toRoute<Navigator.PersonDetailsPage>()
+                val personDetailsPageViewModel: PersonDetailsPageViewModel = hiltViewModel()
+                LaunchedEffect(args.id) {
+                    personDetailsPageViewModel.getPersonDetails(args.id)
+                }
+                val personDetails by personDetailsPageViewModel.personDetails.collectAsState()
+                PersonDetailsPage(personDetails, args.name, navController = navController, { navController.popBackStack() })
             }
             composable<Navigator.TvDetailsPage> {
-                val args =  it.toRoute<Navigator.TvDetailsPage>()
-                TvDetailsPage(args.id, args.show, args.catagory, navController = navController, { navController.popBackStack() })
+                val args = it.toRoute<Navigator.TvDetailsPage>()
+                val tvDetailsPageViewModel: TvDetailsPageViewModel = hiltViewModel()
+                LaunchedEffect(args.id) {
+                    tvDetailsPageViewModel.getTvSeriesDetails(args.id)
+                    tvDetailsPageViewModel.getTvSeriesImages(args.id)
+                }
+                val tvDetails by tvDetailsPageViewModel.tvDetails.collectAsState()
+                val tvImages by tvDetailsPageViewModel.tvImages.collectAsState()
+                TvDetailsPage(tvDetails, tvImages, args.show, navController = navController, { navController.popBackStack() })
             }
         }
     }
@@ -446,7 +473,7 @@ fun PersonBox(
                         onClick = { id ->
                             navController.navigate(
                                 Navigator.PersonDetailsPage(
-                                    person = person.name,
+                                    name = person.name,
                                     id = id,
                                     catagory = catagory
                                 )
@@ -475,12 +502,12 @@ fun BoxClipped(
     Column(
         modifier = Modifier
             .height(336.dp)
-            .width(176.dp)
+            .width(192.dp)
             .shadow(elevation = 8.dp)
     ) {
         Box(
             modifier = Modifier
-                .width(176.dp)
+                .width(192.dp)
                 .clip(
                     RoundedCornerShape(
                         topStart = 16.dp,
@@ -494,7 +521,7 @@ fun BoxClipped(
             Box(
                 modifier = Modifier
                     .height(256.dp)
-                    .width(160.dp)
+                    .width(176.dp)
                     .shadow(8.dp),
                 contentAlignment = Alignment.BottomStart
             ) {
@@ -507,7 +534,7 @@ fun BoxClipped(
                 Heart(name = name, paddingStart = 8.dp, paddingBottom = 8.dp)
             }
         }
-        Details(catagory = catagory, name = name, score = popularity, rank = rank, details = "", width = 176.dp, trending = false, showCircleI = false)
+        Details(catagory = catagory, name = name, score = popularity, rank = rank, details = "", width = 192.dp, trending = false, showCircleI = false)
     }
 }
 
@@ -1039,6 +1066,20 @@ fun isLoading() {
     }
 }
 
+@Composable
+fun isError(padding: PaddingValues) {
+    Box(
+        modifier = Modifier
+            .padding(padding)
+            .fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Column {
+            isLoading()
+            Text("errr... opps")
+        }
+    }
+}
 
 // TODO:
 // annotation syntax

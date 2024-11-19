@@ -37,16 +37,20 @@ import com.imdb_compose.BottomBar
 import com.imdb_compose.Pager
 import com.imdb_compose.Tags
 import com.imdb_compose.TopBar
+import com.imdb_compose.domain.Async
+import com.imdb_compose.domain.Images
+import com.imdb_compose.domain.MovieDetail
 import com.imdb_compose.domain.Resources
+import com.imdb_compose.isError
 import com.imdb_compose.isLoading
 import com.imdb_compose.ui.viewmodel.CatagoryPageViewModel
 
 @SuppressLint("CoroutineCreationDuringComposition", "StateFlowValueCalledInComposition")
 @Composable
 fun MovieDetailsPage(
-    id: Int,
+    movieDetails: Async<MovieDetail>,
+    movieImages: Async<Images>,
     title: String,
-    catagory: String,
     navController: NavController,
     clickHandlerBackButton: () -> Unit
 ) {
@@ -60,119 +64,113 @@ fun MovieDetailsPage(
             BottomBar(navController)
         }
     ) { paddingValues ->
-        val viewModel = hiltViewModel<CatagoryPageViewModel, CatagoryPageViewModel.DetailViewModelFactory> { factory ->
-            factory.create(id, catagory)
-        }
 
-        if (viewModel.movieDetails.value?.id == id && viewModel.movieImages.value?.id == id) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues = paddingValues),
-                contentAlignment = Alignment.TopStart
-            ) {
-                val movieDetails by lazy {
-                    viewModel.movieDetails.value
-                }
-                val movieImages by lazy {
-                    viewModel.movieImages.value
-                }
-
-                movieDetails.let { details ->
-                    Column {
-                        LazyColumn {
-                            item {
-                                // Title
-                                Text(
-                                    modifier = Modifier.padding(start = 6.dp),
-                                    text = details!!.title,
-                                    lineHeight = 50.sp,
-                                    fontSize = MaterialTheme.typography.displayMedium.fontSize,
-                                    fontWeight = MaterialTheme.typography.displayMedium.fontWeight,
-                                    fontStyle = MaterialTheme.typography.displayMedium.fontStyle,
-                                    fontFamily = MaterialTheme.typography.displayMedium.fontFamily
-                                )
-                                // Year Rating Duration
-                                Row (
-                                    modifier = Modifier
-                                        .fillMaxWidth(0.4f)
-                                        .padding(start = 16.dp, bottom = 8.dp),
-                                    horizontalArrangement = Arrangement.SpaceBetween
-                                ) {
-                                    Text(details.release_date.substring(0, 4))
-                                    Text("${ if (details.adult) "R" else "PG-13" }")
-                                    Text("${ details.runtime / 60 }h ${ details.runtime % 60 }m")
-                                }
-
-                                Pager(images = movieImages)
-                            }
-                            // Image & description
-                            item {
-                                Row (modifier = Modifier.padding(start = 8.dp)) {
-                                    AsyncImage(
-                                        modifier = Modifier.width(170.dp),
-                                        model = "${ Resources.BASE_IMAGE_URL }${ Resources.IMAGE_PATH }${ details?.poster_path }",
-                                        contentDescription = ""
-                                    )
+        when(movieDetails) {
+            is Async.Init, is Async.Loading -> { isLoading() }
+            is Async.Success -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues = paddingValues),
+                    contentAlignment = Alignment.TopStart
+                ) {
+                    movieDetails.data.let { details ->
+                        Column {
+                            LazyColumn {
+                                item {
+                                    // Title
                                     Text(
-                                        modifier = Modifier.padding(horizontal = 8.dp),
-                                        text = details!!.overview,
-                                        overflow = TextOverflow.Ellipsis,
-                                        maxLines = 10
+                                        modifier = Modifier.padding(start = 6.dp),
+                                        text = details.title,
+                                        lineHeight = 50.sp,
+                                        fontSize = MaterialTheme.typography.displayMedium.fontSize,
+                                        fontWeight = MaterialTheme.typography.displayMedium.fontWeight,
+                                        fontStyle = MaterialTheme.typography.displayMedium.fontStyle,
+                                        fontFamily = MaterialTheme.typography.displayMedium.fontFamily
                                     )
-                                }
-                            }
-                            // tags
-                            item {
-                                LazyRow {
-                                    details?.genres?.forEachIndexed { i, genre ->
-                                        item {
-                                            Box(
-                                                modifier = Modifier
-                                                    .padding(start = 16.dp)
-                                                    .padding(vertical = 8.dp)
-                                            ) {
-                                                Tags(txt = genre.name)
-                                                Spacer(modifier = Modifier.width(8.dp))
+                                    // Year Rating Duration
+                                    Row (
+                                        modifier = Modifier
+                                            .fillMaxWidth(0.4f)
+                                            .padding(start = 16.dp, bottom = 8.dp),
+                                        horizontalArrangement = Arrangement.SpaceBetween
+                                    ) {
+                                        Text(details.release_date.substring(0, 4))
+                                        Text("${ if (details.adult) "R" else "PG-13" }")
+                                        Text("${ details.runtime / 60 }h ${ details.runtime % 60 }m")
+                                    }
+
+                                    when(movieImages) {
+                                        is Async.Init, is Async.Loading -> { isLoading() }
+                                        is Async.Success -> { Pager(images = movieImages.data) }
+                                        else -> {
+                                            if (movieImages is Async.Error) {
+                                                isError(paddingValues)
                                             }
                                         }
                                     }
                                 }
-                            }
-                            // Add to watchlist
-                            item {
-                                Button(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(40.dp)
-                                        .padding(horizontal = 8.dp),
-                                    shape = RoundedCornerShape(4.dp),
-                                    onClick = { /*TODO*/ },
-                                    colors = ButtonColors(
-                                        containerColor = ripeMango,
-                                        contentColor = Color.White,
-                                        disabledContainerColor = Color.Red,
-                                        disabledContentColor = Color.White,
-                                    )
-                                ) {
-                                    Icon(imageVector = Icons.Outlined.Add, contentDescription = "", tint = Color.Black)
-                                    Text(text = "  Add to Watchlist", color = Color.Black)
+                                // Image & description
+                                item {
+                                    Row (modifier = Modifier.padding(start = 8.dp)) {
+                                        AsyncImage(
+                                            modifier = Modifier.width(170.dp),
+                                            model = "${ Resources.BASE_IMAGE_URL }${ Resources.IMAGE_PATH }${ details?.poster_path }",
+                                            contentDescription = ""
+                                        )
+                                        Text(
+                                            modifier = Modifier.padding(horizontal = 8.dp),
+                                            text = details!!.overview,
+                                            overflow = TextOverflow.Ellipsis,
+                                            maxLines = 10
+                                        )
+                                    }
+                                }
+                                // tags
+                                item {
+                                    LazyRow {
+                                        details?.genres?.forEachIndexed { i, genre ->
+                                            item {
+                                                Box(
+                                                    modifier = Modifier
+                                                        .padding(start = 16.dp)
+                                                        .padding(vertical = 8.dp)
+                                                ) {
+                                                    Tags(txt = genre.name)
+                                                    Spacer(modifier = Modifier.width(8.dp))
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                // Add to watchlist
+                                item {
+                                    Button(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(40.dp)
+                                            .padding(horizontal = 8.dp),
+                                        shape = RoundedCornerShape(4.dp),
+                                        onClick = { /*TODO*/ },
+                                        colors = ButtonColors(
+                                            containerColor = ripeMango,
+                                            contentColor = Color.White,
+                                            disabledContainerColor = Color.Red,
+                                            disabledContentColor = Color.White,
+                                        )
+                                    ) {
+                                        Icon(imageVector = Icons.Outlined.Add, contentDescription = "", tint = Color.Black)
+                                        Text(text = "  Add to Watchlist", color = Color.Black)
+                                    }
                                 }
                             }
                         }
                     }
                 }
             }
-        } else {
-            Box(
-                modifier = Modifier
-                    .padding(paddingValues)
-                    .fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Column {
-                    isLoading()
-                    Text("Loading...")
+            else -> {
+                if (movieDetails is Async.Error) {
+                    isError(paddingValues)
                 }
             }
         }

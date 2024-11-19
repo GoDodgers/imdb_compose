@@ -24,7 +24,6 @@ fun CategoryPage(
     navController: NavController,
     clickHandlerBackButton: () -> Unit
 ) {
-
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
@@ -39,7 +38,6 @@ fun CategoryPage(
                 .fillMaxSize()
                 .padding(paddingValues = paddingValues),
         ) {
-
             Row (
                 modifier = Modifier
                     .height(420.dp)

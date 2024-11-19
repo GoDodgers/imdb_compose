@@ -18,10 +18,6 @@ data class TvResult(
     val first_air_date: String
 )
 
-data class AsyncState(
-    val status: Async<ActorDetail> = Async.Init
-)
-
 data class ActorList(
     val results: List<ActorResult>
 )
