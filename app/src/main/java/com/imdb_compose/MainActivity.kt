@@ -13,7 +13,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -86,8 +85,9 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
+import androidx.navigation.NavDestination.Companion.hasRoute
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -101,18 +101,18 @@ import com.example.compose.gray300
 import com.example.compose.gray400
 import com.example.compose.gray600
 import com.example.compose.ripeMango
-import com.imdb_compose.domain.Resources
 import com.imdb_compose.domain.ActorList
 import com.imdb_compose.domain.Images
 import com.imdb_compose.domain.MovieList
+import com.imdb_compose.domain.Resources
 import com.imdb_compose.domain.TvList
 import com.imdb_compose.ui.CategoryPage
-import com.imdb_compose.ui.viewmodel.HomeScreenViewModel
 import com.imdb_compose.ui.MovieDetailsPage
 import com.imdb_compose.ui.Navigator
 import com.imdb_compose.ui.PersonDetailsPage
 import com.imdb_compose.ui.TvDetailsPage
-import com.imdb_compose.ui.viewmodel.CatagoryPageViewModel
+import com.imdb_compose.ui.viewmodel.CategoryPageViewModel
+import com.imdb_compose.ui.viewmodel.HomeScreenViewModel
 import com.imdb_compose.ui.viewmodel.MovieDetailsPageViewModel
 import com.imdb_compose.ui.viewmodel.PersonDetailsPageViewModel
 import com.imdb_compose.ui.viewmodel.TvDetailsPageViewModel
@@ -148,62 +148,110 @@ fun Theme() {
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.secondary
     ) {
+        val whatToWatch = stringResource(id = R.string.what_to_watch)
+        var titleScreen by remember {
+            mutableStateOf(whatToWatch)
+        }
+
         val navController = rememberNavController()
         val viewModel: HomeScreenViewModel = hiltViewModel()
 
-        NavHost(navController = navController, startDestination = Navigator.HomeScreen ) {
-            composable<Navigator.HomeScreen> {
-                HomeScreen(
-                    top = { TopBar(showBackButton = false, backButton = {}) },
-                    bottom = { BottomBar(navController) },
-                    viewModel.catagories,
-                    viewModel.noMovies.collectAsState(),
-                    viewModel.movieListOfWeek.collectAsState(),
-                    viewModel.trendingMovies.collectAsState(),
-                    viewModel.airingTodayTv.collectAsState(),
-                    viewModel.trendingTv.collectAsState(),
-                    viewModel.upcomingMovies.collectAsState(),
-                    viewModel.popularPersons.collectAsState(),
-                    viewModel.trendingPersons.collectAsState(),
-                    viewModel.boxOffice,
-                    navController = navController
+        Scaffold (
+            modifier = Modifier.fillMaxSize(),
+            containerColor = Color.Transparent,
+            topBar = {
+                TopBar(
+                    titleScreen,
+                    showUpButton = navController.previousBackStackEntry != null,
+                    onUpClicked = { navController.navigateUp() }
+                )
+            },
+            bottomBar = {
+                BottomBar(
+                    onClick = { navigator ->
+                        if (navController.graph.findStartDestination().hasRoute(navigator::class)) {
+                            navController.popBackStack(navigator, false)
+                        } else {
+                            navController.navigate(navigator) {
+                                // Pop up to the start destination of the graph to
+                                // avoid building up a large stack of destinations
+                                // on the back stack as users select items
+                                popUpTo(navController.graph.startDestinationId) {
+                                    saveState = true
+                                }
+                                // Avoid multiple copies of the same destination when
+                                // reselecting the same item
+                                launchSingleTop = true
+                                // Restore state when reselecting a previously selected item
+                                restoreState = true
+                            }
+                        }
+                    }
                 )
             }
-            composable<Navigator.CategoryPage> {
-                val args = it.toRoute<Navigator.CategoryPage>()
-                val catagoryPageViewModel: CatagoryPageViewModel = hiltViewModel()
-                CategoryPage(args.catagory, navController = navController, { navController.popBackStack() })
-            }
-            composable<Navigator.MovieDetailsPage> {
-                val args = it.toRoute<Navigator.MovieDetailsPage>()
-                val movieDetailsPageViewModel: MovieDetailsPageViewModel = hiltViewModel()
-                LaunchedEffect(args.id) {
-                    movieDetailsPageViewModel.getMovieDetails(args.id)
-                    movieDetailsPageViewModel.getMovieImages(args.id)
+        ) { paddingValues ->
+            Box(modifier = Modifier
+                .padding(paddingValues)
+                .fillMaxSize()
+            ) {
+                NavHost(navController = navController, startDestination = Navigator.HomeScreen ) {
+                    composable<Navigator.HomeScreen> {
+                        titleScreen = stringResource(id = R.string.what_to_watch)
+                        HomeScreen(
+                            viewModel.catagories,
+                            viewModel.noMovies.collectAsState(),
+                            viewModel.movieListOfWeek.collectAsState(),
+                            viewModel.trendingMovies.collectAsState(),
+                            viewModel.airingTodayTv.collectAsState(),
+                            viewModel.trendingTv.collectAsState(),
+                            viewModel.upcomingMovies.collectAsState(),
+                            viewModel.popularPersons.collectAsState(),
+                            viewModel.trendingPersons.collectAsState(),
+                            viewModel.boxOffice,
+                            navController = navController
+                        )
+                    }
+                    composable<Navigator.CategoryPage> {
+                        val args = it.toRoute<Navigator.CategoryPage>()
+                        val categoryPageViewModel: CategoryPageViewModel = hiltViewModel()
+                        titleScreen = args.catagory
+                        CategoryPage(args.catagory, navController = navController, { navController.popBackStack() })
+                    }
+                    composable<Navigator.MovieDetailsPage> {
+                        val args = it.toRoute<Navigator.MovieDetailsPage>()
+                        val movieDetailsPageViewModel: MovieDetailsPageViewModel = hiltViewModel()
+                        LaunchedEffect(args.id) {
+                            movieDetailsPageViewModel.getMovieDetails(args.id)
+                            movieDetailsPageViewModel.getMovieImages(args.id)
+                        }
+                        val movieDetails by movieDetailsPageViewModel.movieDetails.collectAsState()
+                        val movieImages by movieDetailsPageViewModel.movieImages.collectAsState()
+                        titleScreen = args.title
+                        MovieDetailsPage(movieDetails, movieImages, args.title, navController = navController, { navController.popBackStack() })
+                    }
+                    composable<Navigator.PersonDetailsPage> {
+                        val args = it.toRoute<Navigator.PersonDetailsPage>()
+                        val personDetailsPageViewModel: PersonDetailsPageViewModel = hiltViewModel()
+                        LaunchedEffect(args.id) {
+                            personDetailsPageViewModel.getPersonDetails(args.id)
+                        }
+                        val personDetails by personDetailsPageViewModel.personDetails.collectAsState()
+                        titleScreen = args.name
+                        PersonDetailsPage(personDetails, args.name, navController = navController, { navController.popBackStack() })
+                    }
+                    composable<Navigator.TvDetailsPage> {
+                        val args = it.toRoute<Navigator.TvDetailsPage>()
+                        val tvDetailsPageViewModel: TvDetailsPageViewModel = hiltViewModel()
+                        LaunchedEffect(args.id) {
+                            tvDetailsPageViewModel.getTvSeriesDetails(args.id)
+                            tvDetailsPageViewModel.getTvSeriesImages(args.id)
+                        }
+                        val tvDetails by tvDetailsPageViewModel.tvDetails.collectAsState()
+                        val tvImages by tvDetailsPageViewModel.tvImages.collectAsState()
+                        titleScreen = args.show
+                        TvDetailsPage(tvDetails, tvImages, navController = navController, { navController.popBackStack() })
+                    }
                 }
-                val movieDetails by movieDetailsPageViewModel.movieDetails.collectAsState()
-                val movieImages by movieDetailsPageViewModel.movieImages.collectAsState()
-                MovieDetailsPage(movieDetails, movieImages, args.title, navController = navController, { navController.popBackStack() })
-            }
-            composable<Navigator.PersonDetailsPage> {
-                val args = it.toRoute<Navigator.PersonDetailsPage>()
-                val personDetailsPageViewModel: PersonDetailsPageViewModel = hiltViewModel()
-                LaunchedEffect(args.id) {
-                    personDetailsPageViewModel.getPersonDetails(args.id)
-                }
-                val personDetails by personDetailsPageViewModel.personDetails.collectAsState()
-                PersonDetailsPage(personDetails, args.name, navController = navController, { navController.popBackStack() })
-            }
-            composable<Navigator.TvDetailsPage> {
-                val args = it.toRoute<Navigator.TvDetailsPage>()
-                val tvDetailsPageViewModel: TvDetailsPageViewModel = hiltViewModel()
-                LaunchedEffect(args.id) {
-                    tvDetailsPageViewModel.getTvSeriesDetails(args.id)
-                    tvDetailsPageViewModel.getTvSeriesImages(args.id)
-                }
-                val tvDetails by tvDetailsPageViewModel.tvDetails.collectAsState()
-                val tvImages by tvDetailsPageViewModel.tvImages.collectAsState()
-                TvDetailsPage(tvDetails, tvImages, args.show, navController = navController, { navController.popBackStack() })
             }
         }
     }
@@ -212,8 +260,6 @@ fun Theme() {
 @Composable
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 fun HomeScreen(
-    top: @Composable () -> Unit,
-    bottom: @Composable () -> Unit,
     catagories: List<String>,
     noMovies: State<MovieList?>,
     movieListOfWeek: State<MovieList?>,
@@ -226,89 +272,72 @@ fun HomeScreen(
     boxOffice: List<Map<String, String>>,
     navController: NavController
 ) {
-    Scaffold (
-        modifier = Modifier.fillMaxSize(),
-        containerColor = Color.Transparent,
-        topBar = {
-            top()
-        },
-        bottomBar = {
-            bottom()
-        }
-    ) { paddingValues ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-        ) {
-            LazyColumn {
-                item {
-                    catagories.forEachIndexed { i, catagory ->
+    LazyColumn {
+        item {
+            catagories.forEachIndexed { i, catagory ->
+                Row (
+                    modifier = Modifier
+                        .fillMaxWidth(fraction = 0.95f)
+                        .fillMaxHeight(fraction = 0.95f)
+                        .background(color = gray400)
+                        .padding(bottom = 16.dp)
+                ) {
+                    Column (modifier = Modifier.padding(start = 8.dp, top = 8.dp)) {
                         Row (
-                            modifier = Modifier
-                                .fillMaxWidth(fraction = 0.95f)
-                                .fillMaxHeight(fraction = 0.95f)
-                                .background(color = gray400)
-                                .padding(bottom = 16.dp)
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Column (modifier = Modifier.padding(start = 8.dp, top = 8.dp)) {
-                                Row (
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically
+                            // Orange Accent <Catagory>
+                            Row (verticalAlignment = Alignment.CenterVertically) {
+                                Box(
+                                    modifier = Modifier
+                                        .padding(start = 8.dp)
+                                        .clip(RoundedCornerShape(24.dp))
+                                        .height(36.dp)
+                                        .width(6.dp)
+                                        .background(ripeMango)
+                                )
+                                Text(
+                                    text = catagory,
+                                    modifier = Modifier.padding(start = 8.dp),
+                                    color = MaterialTheme.colorScheme.onSecondary,
+                                    style = MaterialTheme.typography.headlineMedium
+                                )
+                            }
+                            // See All Btn
+                            Row (verticalAlignment = Alignment.CenterVertically) {
+                                TextButton(
+                                    modifier = Modifier.padding(start = 8.dp),
+                                    onClick = { navController.navigate(Navigator.CategoryPage(catagory = catagory)) }
                                 ) {
-                                    // Orange Accent <Catagory>
-                                    Row (verticalAlignment = Alignment.CenterVertically) {
-                                        Box(
-                                            modifier = Modifier
-                                                .padding(start = 8.dp)
-                                                .clip(RoundedCornerShape(24.dp))
-                                                .height(36.dp)
-                                                .width(6.dp)
-                                                .background(ripeMango)
-                                        )
-                                        Text(
-                                            text = catagory,
-                                            modifier = Modifier.padding(start = 8.dp),
-                                            color = MaterialTheme.colorScheme.onSecondary,
-                                            style = MaterialTheme.typography.headlineMedium
-                                        )
-                                    }
-                                    // See All Btn
-                                    Row (verticalAlignment = Alignment.CenterVertically) {
-                                        TextButton(
-                                            modifier = Modifier.padding(start = 8.dp),
-                                            onClick = { navController.navigate(Navigator.CategoryPage(catagory = catagory)) }
-                                        ) {
-                                            Text(
-                                                text = stringResource(R.string.see_all),
-                                                modifier = Modifier.padding(start = 8.dp),
-                                                color = blue400,
-                                                fontStyle = MaterialTheme.typography.headlineLarge.fontStyle,
-                                                fontWeight = FontWeight.Bold
-                                            )
-                                        }
-                                    }
-                                }
-
-                                Spacer(modifier = Modifier.height(8.dp))
-
-                                when(catagory) {
-                                    "Popular actors" -> PersonBox(catagory, popularPersons, navController)
-                                    "Trending movies" -> MovieBox(catagory, trendingMovies, navController)
-                                    "Movies of the week" -> MovieBox(catagory, movieListOfWeek, navController)
-                                    "Upcoming movies" -> UpcommingBox(catagory, upcomingMovies, navController)
-                                    "Tv airing today" -> TvBox(catagory, airingTodayTv, navController)
-                                    "Trending tv" -> TvBox(catagory, trendingTv, navController)
-                                    "Trending people" -> PersonBox(catagory, trendingPersons, navController)
-                                    "Top box office" -> BoxOfficeBox(catagory, boxOffice, navController)
-                                    else -> MovieBox(catagory, noMovies, navController)
+                                    Text(
+                                        text = stringResource(R.string.see_all),
+                                        modifier = Modifier.padding(start = 8.dp),
+                                        color = blue400,
+                                        fontStyle = MaterialTheme.typography.headlineLarge.fontStyle,
+                                        fontWeight = FontWeight.Bold
+                                    )
                                 }
                             }
                         }
-                        Spacer(modifier = Modifier.height(16.dp))
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        when(catagory) {
+                            "Popular actors" -> PersonBox(catagory, popularPersons, navController)
+                            "Trending movies" -> MovieBox(catagory, trendingMovies, navController)
+                            "Movies of the week" -> MovieBox(catagory, movieListOfWeek, navController)
+                            "Upcoming movies" -> UpcommingBox(catagory, upcomingMovies, navController)
+                            "Tv airing today" -> TvBox(catagory, airingTodayTv, navController)
+                            "Trending tv" -> TvBox(catagory, trendingTv, navController)
+                            "Trending people" -> PersonBox(catagory, trendingPersons, navController)
+                            "Top box office" -> BoxOfficeBox(catagory, boxOffice, navController)
+                            else -> MovieBox(catagory, noMovies, navController)
+                        }
                     }
                 }
+                Spacer(modifier = Modifier.height(16.dp))
             }
         }
     }
@@ -316,23 +345,21 @@ fun HomeScreen(
 
 @Composable
 fun TopBar(
-    title: String = stringResource(R.string.what_to_watch),
-    showBackButton: Boolean,
-    backButton: () -> Unit
+    title: String,
+    showUpButton: Boolean,
+    onUpClicked: () -> Unit
 ) {
     TopAppBar(
         title = {
             Text(
                 text = title,
                 color = MaterialTheme.colorScheme.onSecondary,
-                fontSize = MaterialTheme.typography.headlineLarge.fontSize,
-                fontStyle = MaterialTheme.typography.headlineLarge.fontStyle,
-                fontWeight = MaterialTheme.typography.headlineLarge.fontWeight
+                style = MaterialTheme.typography.headlineLarge
             )
         },
         navigationIcon = {
-            if (showBackButton) {
-                IconButton(onClick = { backButton() }) {
+            if (showUpButton) {
+                IconButton(onClick = onUpClicked) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = stringResource(R.string.back),
@@ -352,12 +379,12 @@ fun TopBar(
 }
 
 @Composable
-fun BottomBar(navController: NavController) {
+fun BottomBar(onClick: (Navigator) -> Unit) {
     BottomAppBar(
         modifier = Modifier.fillMaxWidth(),
         actions = {
             Row (modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-                IconButton(onClick = { navController.navigate(Navigator.HomeScreen) }) {
+                IconButton(onClick = { onClick(Navigator.HomeScreen) }) {
                     Icon(imageVector = Icons.Default.Home, contentDescription = "home")
                 }
                 IconButton(onClick = {}) {
@@ -1067,10 +1094,10 @@ fun isLoading() {
 }
 
 @Composable
-fun isError(padding: PaddingValues) {
+fun isError() {
     Box(
         modifier = Modifier
-            .padding(padding)
+            .padding()
             .fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
@@ -1083,4 +1110,5 @@ fun isError(padding: PaddingValues) {
 
 // TODO:
 // annotation syntax
-// bottom app bar arrangement vs alignment
+// create homescreen page
+// navigator -> destination

@@ -193,3 +193,65 @@ data class Language(
     val english_name: String,
     val name: String
 )
+
+data class MovieSearch(
+    val results: List<Search>,
+    val total_pages: Int,
+    val total_results: Int
+)
+
+data class TvSearch(
+    val results: List<Search>,
+    val total_pages: Int,
+    val total_results: Int
+)
+
+data class PersonSearch(
+    val results: List<Search>,
+    val total_pages: Int,
+    val total_results: Int
+)
+
+data class MultiSearch(
+    val results: List<Search>,
+    val total_pages: Int,
+    val total_results: Int
+)
+
+data class Search(
+    val id: Int,
+    val adult: Boolean,
+    val gender: Int?,
+    val backdrop_path: String?,
+    val poster_path: String?,
+    val profile_path: String?,
+    val genre_id: List<Int>?,
+    val title: String?,
+    val name: String?,
+    val original_name: String?,
+    val original_title: String?,
+    val original_language: String?,
+    val overview: String?,
+    val popularity: Float,
+    val vote_average: Float?,
+    val release_date: String?,
+    val first_air_date: String?,
+    val known_for_department: String?,
+    val known_for: List<KnownFor>?
+)
+
+data class KnownFor(
+    val backdrop_path: String,
+    val id: Int,
+    val title: String,
+    val original_title: String,
+    val overview: String,
+    val poster_path: String,
+    val media_type: String,
+    val adult: Boolean,
+    val original_language: String,
+    val genre_ids: List<Int>,
+    val popularity: Float,
+    val release_date: String,
+    val vote_average: Float
+)
