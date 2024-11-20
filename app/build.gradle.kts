@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.jetbrainsKotlinSerialization)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.org.jetbrains.kotlin.kapt)
+    alias(libs.plugins.com.google.dagger.hilt.android)
 }
 
 android {
