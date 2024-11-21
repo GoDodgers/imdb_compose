@@ -19,6 +19,7 @@ import com.imdb_compose.domain.Resources.TV_SERIES_IMGAGES_PATH
 import com.imdb_compose.domain.Resources.UPCOMING_MOVIE_PATH
 import retrofit2.http.GET
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 object Resources {
     const val BASE_URL = "https://api.themoviedb.org/"
@@ -49,7 +50,7 @@ object Resources {
     const val IMAGE_PATH_w500 = "t/p/w500/"
 }
 
-interface MovieApi: SearchApi {
+interface MovieApi {
     @GET("${ MOVIES_OF_WEEK_PATH }?language=en-US&api_key=${ BuildConfig.API_KEY }")
     suspend fun getMoviesOfWeekList(): MovieList
 
@@ -65,11 +66,11 @@ interface MovieApi: SearchApi {
     @GET("${ MOVIE_IMAGES_PATH }?api_key=${ BuildConfig.API_KEY }")
     suspend fun getMovieImages(@Path("id") id: Int): Images
 
-    @GET("${ MOVIE_SEARCH_PATH }?query={query}&include_adult={adult}&language=en-US&api_key=${ BuildConfig.API_KEY }")
-    suspend fun queryMovieSearch(@Path("query") query: String, @Path("adult") adult: Boolean = false): MovieSearch
+    @GET("${ MOVIE_SEARCH_PATH }?api_key=${ BuildConfig.API_KEY }")
+    suspend fun queryMovieSearch(@Query("query") query: String): MovieSearch
 }
 
-interface TvApi: SearchApi {
+interface TvApi {
     @GET("${ TRENDING_TV_DAY_PATH }?language=en-US&api_key=${ BuildConfig.API_KEY }")
     suspend fun getTrendingTv(): TvList
 
@@ -81,11 +82,11 @@ interface TvApi: SearchApi {
 
     @GET("${ TV_SERIES_IMGAGES_PATH }?api_key=${ BuildConfig.API_KEY }")
     suspend fun getTvSeriesImages(@Path("id") id: Int): Images
-    @GET("${ TV_SEARCH_PATH }?query={query}&include_adult={adult}&language=en-US&api_key=${ BuildConfig.API_KEY }")
-    suspend fun queryTvSearch(@Path("query") query: String, @Path("adult") adult: Boolean = false): TvSearch
+    @GET("${ TV_SEARCH_PATH }?api_key=${ BuildConfig.API_KEY }")
+    suspend fun queryTvSearch(@Query("query") query: String): TvSearch
 }
 
-interface PeopleApi: SearchApi {
+interface PeopleApi {
     @GET("${ POPULAR_PERSONS_PATH }?language=en-US&api_key=${ BuildConfig.API_KEY }")
     suspend fun getPopularPersons(): ActorList
 
@@ -94,11 +95,11 @@ interface PeopleApi: SearchApi {
 
     @GET("${ PERSON_DETAILS_PATH }?language=en-US&api_key=${ BuildConfig.API_KEY }")
     suspend fun getPersonDetails(@Path("id") id: Int): ActorDetail
-    @GET("${ PERSON_SEARCH_PATH }?query={query}&include_adult={adult}&language=en-US&api_key=${ BuildConfig.API_KEY }")
-    suspend fun getPersonSearch(@Path("query") query: String, @Path("adult") adult: Boolean = false): PersonSearch
+    @GET("${ PERSON_SEARCH_PATH }?language=en-US&api_key=${ BuildConfig.API_KEY }")
+    suspend fun getPersonSearch(@Query("query") query: String): PersonSearch
 }
 
 interface SearchApi {
-    @GET("${ MULTI_SEARCH_PATH }?query={query}&include_adult={adult}&language=en-US&api_key=${ BuildConfig.API_KEY }")
-    suspend fun queryMultiSearch(@Path("query") query: String, @Path("adult") adult: Boolean = false): MultiSearch
+    @GET("${ MULTI_SEARCH_PATH }?api_key=${ BuildConfig.API_KEY }")
+    suspend fun queryMultiSearch(@Query("query") query: String): MultiSearch
 }

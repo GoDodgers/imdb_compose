@@ -4,7 +4,9 @@ import kotlinx.serialization.Serializable
 
 interface Destination {
     @Serializable
-    data object HomeScreen: Destination
+    data object HomePage: Destination
+    @Serializable
+    data object SearchPage: Destination
     @Serializable
     data class CategoryPage(val catagory: String): Destination
     @Serializable

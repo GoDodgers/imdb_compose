@@ -196,10 +196,10 @@ fun BottomBar(onClick: (Destination) -> Unit) {
         modifier = Modifier.fillMaxWidth(),
         actions = {
             Row (modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-                IconButton(onClick = { onClick(Destination.HomeScreen) }) {
+                IconButton(onClick = { onClick(Destination.HomePage) }) {
                     Icon(imageVector = Icons.Default.Home, contentDescription = "home")
                 }
-                IconButton(onClick = {}) {
+                IconButton(onClick = { onClick(Destination.SearchPage) }) {
                     Icon(imageVector = Icons.Default.Search, contentDescription = "search")
                 }
                 IconButton(onClick = {}) {

@@ -8,6 +8,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
+import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
 
@@ -16,11 +17,11 @@ import javax.inject.Singleton
 object NetworkModule {
     @Singleton
     @Provides
-    fun retrofit(okHttpClient: OkHttpClient): retrofit2.Retrofit {
+    fun retrofit(okHttpClient: OkHttpClient): Retrofit {
 //        "2024-07-31"
         val gson = GsonBuilder().setDateFormat("yyyy-MM-dd").create()
 
-        return retrofit2.Retrofit.Builder()
+        return Retrofit.Builder()
             .baseUrl(BASE_URL)
             .addConverterFactory(GsonConverterFactory.create(gson))
             .client(okHttpClient)
@@ -38,12 +39,15 @@ object NetworkModule {
     }
 
     @Provides
-    fun movieApi(retrofit: retrofit2.Retrofit): MovieApi = retrofit.create(MovieApi::class.java)
+    fun movieApi(retrofit: Retrofit): MovieApi = retrofit.create(MovieApi::class.java)
 
     @Provides
-    fun tvApi(retrofit: retrofit2.Retrofit): TvApi = retrofit.create(TvApi::class.java)
+    fun tvApi(retrofit: Retrofit): TvApi = retrofit.create(TvApi::class.java)
 
     @Provides
-    fun peopleApi(retrofit: retrofit2.Retrofit): PeopleApi = retrofit.create(PeopleApi::class.java)
+    fun peopleApi(retrofit: Retrofit): PeopleApi = retrofit.create(PeopleApi::class.java)
+
+    @Provides
+    fun searchApi(retrofit: Retrofit): SearchApi = retrofit.create(SearchApi::class.java)
 }
 

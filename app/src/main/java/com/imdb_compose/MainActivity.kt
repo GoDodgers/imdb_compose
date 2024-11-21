@@ -82,6 +82,7 @@ import com.imdb_compose.ui.Destination
 import com.imdb_compose.ui.HomePage
 import com.imdb_compose.ui.MovieDetailsPage
 import com.imdb_compose.ui.PersonDetailsPage
+import com.imdb_compose.ui.SearchPage
 import com.imdb_compose.ui.TopBar
 import com.imdb_compose.ui.TvDetailsPage
 import com.imdb_compose.ui.viewmodel.CategoryPageViewModel
@@ -165,8 +166,8 @@ fun Theme() {
                 .padding(paddingValues)
                 .fillMaxSize()
             ) {
-                NavHost(navController = navController, startDestination = Destination.HomeScreen ) {
-                    composable<Destination.HomeScreen> {
+                NavHost(navController = navController, startDestination = Destination.HomePage ) {
+                    composable<Destination.HomePage> {
                         titleScreen = stringResource(id = R.string.what_to_watch)
                         HomePage(
                             viewModel.catagories,
@@ -181,6 +182,10 @@ fun Theme() {
                             viewModel.boxOffice,
                             navController = navController
                         )
+                    }
+                    composable<Destination.SearchPage> {
+                        titleScreen = stringResource(R.string.search)
+                        SearchPage()
                     }
                     composable<Destination.CategoryPage> {
                         val args = it.toRoute<Destination.CategoryPage>()
