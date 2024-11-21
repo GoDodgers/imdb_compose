@@ -40,7 +40,6 @@ import com.imdb_compose.domain.Resources
 import com.imdb_compose.isError
 import com.imdb_compose.isLoading
 
-@SuppressLint("CoroutineCreationDuringComposition", "StateFlowValueCalledInComposition")
 @Composable
 fun MovieDetailsPage(
     movieDetails: Async<MovieDetail>,

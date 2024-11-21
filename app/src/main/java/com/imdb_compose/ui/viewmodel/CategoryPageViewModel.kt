@@ -18,7 +18,5 @@ class CategoryPageViewModel @Inject constructor(
     private val peopleApi: PeopleApi
 ) : ViewModel() {
 
-    private val _textFieldState: MutableStateFlow<String> = MutableStateFlow("")
-    val textFieldState: StateFlow<String> = _textFieldState.asStateFlow()
 
 }

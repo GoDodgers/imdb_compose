@@ -1,59 +1,37 @@
 @file:OptIn(ExperimentalMaterial3Api::class)
 package com.imdb_compose
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.Add
-import androidx.compose.material.icons.outlined.BookOnline
-import androidx.compose.material.icons.outlined.FavoriteBorder
-import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarColors
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.carousel.HorizontalMultiBrowseCarousel
 import androidx.compose.material3.carousel.rememberCarouselState
 import androidx.compose.runtime.Composable
@@ -80,12 +58,10 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
@@ -94,22 +70,19 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import coil.compose.SubcomposeAsyncImage
 import com.example.compose.AppTheme
-import com.example.compose.blue400
 import com.example.compose.gray100
 import com.example.compose.gray200
 import com.example.compose.gray300
-import com.example.compose.gray400
 import com.example.compose.gray600
-import com.example.compose.ripeMango
-import com.imdb_compose.domain.ActorList
 import com.imdb_compose.domain.Images
-import com.imdb_compose.domain.MovieList
 import com.imdb_compose.domain.Resources
-import com.imdb_compose.domain.TvList
+import com.imdb_compose.ui.BottomBar
 import com.imdb_compose.ui.CategoryPage
+import com.imdb_compose.ui.Destination
+import com.imdb_compose.ui.HomePage
 import com.imdb_compose.ui.MovieDetailsPage
-import com.imdb_compose.ui.Navigator
 import com.imdb_compose.ui.PersonDetailsPage
+import com.imdb_compose.ui.TopBar
 import com.imdb_compose.ui.TvDetailsPage
 import com.imdb_compose.ui.viewmodel.CategoryPageViewModel
 import com.imdb_compose.ui.viewmodel.HomeScreenViewModel
@@ -117,8 +90,6 @@ import com.imdb_compose.ui.viewmodel.MovieDetailsPageViewModel
 import com.imdb_compose.ui.viewmodel.PersonDetailsPageViewModel
 import com.imdb_compose.ui.viewmodel.TvDetailsPageViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import java.text.SimpleDateFormat
-import java.util.Date
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -168,11 +139,11 @@ fun Theme() {
             },
             bottomBar = {
                 BottomBar(
-                    onClick = { navigator ->
-                        if (navController.graph.findStartDestination().hasRoute(navigator::class)) {
-                            navController.popBackStack(navigator, false)
+                    onClick = { destination ->
+                        if (navController.graph.findStartDestination().hasRoute(destination::class)) {
+                            navController.popBackStack(destination, false)
                         } else {
-                            navController.navigate(navigator) {
+                            navController.navigate(destination) {
                                 // Pop up to the start destination of the graph to
                                 // avoid building up a large stack of destinations
                                 // on the back stack as users select items
@@ -194,10 +165,10 @@ fun Theme() {
                 .padding(paddingValues)
                 .fillMaxSize()
             ) {
-                NavHost(navController = navController, startDestination = Navigator.HomeScreen ) {
-                    composable<Navigator.HomeScreen> {
+                NavHost(navController = navController, startDestination = Destination.HomeScreen ) {
+                    composable<Destination.HomeScreen> {
                         titleScreen = stringResource(id = R.string.what_to_watch)
-                        HomeScreen(
+                        HomePage(
                             viewModel.catagories,
                             viewModel.noMovies.collectAsState(),
                             viewModel.movieListOfWeek.collectAsState(),
@@ -211,14 +182,14 @@ fun Theme() {
                             navController = navController
                         )
                     }
-                    composable<Navigator.CategoryPage> {
-                        val args = it.toRoute<Navigator.CategoryPage>()
+                    composable<Destination.CategoryPage> {
+                        val args = it.toRoute<Destination.CategoryPage>()
                         val categoryPageViewModel: CategoryPageViewModel = hiltViewModel()
                         titleScreen = args.catagory
                         CategoryPage(args.catagory, navController = navController, { navController.popBackStack() })
                     }
-                    composable<Navigator.MovieDetailsPage> {
-                        val args = it.toRoute<Navigator.MovieDetailsPage>()
+                    composable<Destination.MovieDetailsPage> {
+                        val args = it.toRoute<Destination.MovieDetailsPage>()
                         val movieDetailsPageViewModel: MovieDetailsPageViewModel = hiltViewModel()
                         LaunchedEffect(args.id) {
                             movieDetailsPageViewModel.getMovieDetails(args.id)
@@ -229,8 +200,8 @@ fun Theme() {
                         titleScreen = args.title
                         MovieDetailsPage(movieDetails, movieImages, args.title, navController = navController, { navController.popBackStack() })
                     }
-                    composable<Navigator.PersonDetailsPage> {
-                        val args = it.toRoute<Navigator.PersonDetailsPage>()
+                    composable<Destination.PersonDetailsPage> {
+                        val args = it.toRoute<Destination.PersonDetailsPage>()
                         val personDetailsPageViewModel: PersonDetailsPageViewModel = hiltViewModel()
                         LaunchedEffect(args.id) {
                             personDetailsPageViewModel.getPersonDetails(args.id)
@@ -239,8 +210,8 @@ fun Theme() {
                         titleScreen = args.name
                         PersonDetailsPage(personDetails, args.name, navController = navController, { navController.popBackStack() })
                     }
-                    composable<Navigator.TvDetailsPage> {
-                        val args = it.toRoute<Navigator.TvDetailsPage>()
+                    composable<Destination.TvDetailsPage> {
+                        val args = it.toRoute<Destination.TvDetailsPage>()
                         val tvDetailsPageViewModel: TvDetailsPageViewModel = hiltViewModel()
                         LaunchedEffect(args.id) {
                             tvDetailsPageViewModel.getTvSeriesDetails(args.id)
@@ -253,618 +224,6 @@ fun Theme() {
                     }
                 }
             }
-        }
-    }
-}
-
-@Composable
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-fun HomeScreen(
-    catagories: List<String>,
-    noMovies: State<MovieList?>,
-    movieListOfWeek: State<MovieList?>,
-    trendingMovies: State<MovieList?>,
-    airingTodayTv: State<TvList?>,
-    trendingTv: State<TvList?>,
-    upcomingMovies: State<MovieList?>,
-    popularPersons: State<ActorList?>,
-    trendingPersons: State<ActorList?>,
-    boxOffice: List<Map<String, String>>,
-    navController: NavController
-) {
-    LazyColumn {
-        item {
-            catagories.forEachIndexed { i, catagory ->
-                Row (
-                    modifier = Modifier
-                        .fillMaxWidth(fraction = 0.95f)
-                        .fillMaxHeight(fraction = 0.95f)
-                        .background(color = gray400)
-                        .padding(bottom = 16.dp)
-                ) {
-                    Column (modifier = Modifier.padding(start = 8.dp, top = 8.dp)) {
-                        Row (
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            // Orange Accent <Catagory>
-                            Row (verticalAlignment = Alignment.CenterVertically) {
-                                Box(
-                                    modifier = Modifier
-                                        .padding(start = 8.dp)
-                                        .clip(RoundedCornerShape(24.dp))
-                                        .height(36.dp)
-                                        .width(6.dp)
-                                        .background(ripeMango)
-                                )
-                                Text(
-                                    text = catagory,
-                                    modifier = Modifier.padding(start = 8.dp),
-                                    color = MaterialTheme.colorScheme.onSecondary,
-                                    style = MaterialTheme.typography.headlineMedium
-                                )
-                            }
-                            // See All Btn
-                            Row (verticalAlignment = Alignment.CenterVertically) {
-                                TextButton(
-                                    modifier = Modifier.padding(start = 8.dp),
-                                    onClick = { navController.navigate(Navigator.CategoryPage(catagory = catagory)) }
-                                ) {
-                                    Text(
-                                        text = stringResource(R.string.see_all),
-                                        modifier = Modifier.padding(start = 8.dp),
-                                        color = blue400,
-                                        fontStyle = MaterialTheme.typography.headlineLarge.fontStyle,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                }
-                            }
-                        }
-
-                        Spacer(modifier = Modifier.height(8.dp))
-
-                        when(catagory) {
-                            "Popular actors" -> PersonBox(catagory, popularPersons, navController)
-                            "Trending movies" -> MovieBox(catagory, trendingMovies, navController)
-                            "Movies of the week" -> MovieBox(catagory, movieListOfWeek, navController)
-                            "Upcoming movies" -> UpcommingBox(catagory, upcomingMovies, navController)
-                            "Tv airing today" -> TvBox(catagory, airingTodayTv, navController)
-                            "Trending tv" -> TvBox(catagory, trendingTv, navController)
-                            "Trending people" -> PersonBox(catagory, trendingPersons, navController)
-                            "Top box office" -> BoxOfficeBox(catagory, boxOffice, navController)
-                            else -> MovieBox(catagory, noMovies, navController)
-                        }
-                    }
-                }
-                Spacer(modifier = Modifier.height(16.dp))
-            }
-        }
-    }
-}
-
-@Composable
-fun TopBar(
-    title: String,
-    showUpButton: Boolean,
-    onUpClicked: () -> Unit
-) {
-    TopAppBar(
-        title = {
-            Text(
-                text = title,
-                color = MaterialTheme.colorScheme.onSecondary,
-                style = MaterialTheme.typography.headlineLarge
-            )
-        },
-        navigationIcon = {
-            if (showUpButton) {
-                IconButton(onClick = onUpClicked) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = stringResource(R.string.back),
-                        tint = Color.White
-                    )
-                }
-            }
-        },
-        colors = TopAppBarColors(
-            containerColor = Color.Transparent,
-            titleContentColor = TopAppBarDefaults.topAppBarColors().titleContentColor,
-            actionIconContentColor = TopAppBarDefaults.topAppBarColors().actionIconContentColor,
-            scrolledContainerColor = TopAppBarDefaults.topAppBarColors().scrolledContainerColor,
-            navigationIconContentColor = TopAppBarDefaults.topAppBarColors().navigationIconContentColor
-        )
-    )
-}
-
-@Composable
-fun BottomBar(onClick: (Navigator) -> Unit) {
-    BottomAppBar(
-        modifier = Modifier.fillMaxWidth(),
-        actions = {
-            Row (modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-                IconButton(onClick = { onClick(Navigator.HomeScreen) }) {
-                    Icon(imageVector = Icons.Default.Home, contentDescription = "home")
-                }
-                IconButton(onClick = {}) {
-                    Icon(imageVector = Icons.Default.Search, contentDescription = "search")
-                }
-                IconButton(onClick = {}) {
-                    Icon(imageVector = Icons.Default.PlayArrow, contentDescription = "home")
-                }
-                IconButton(onClick = {}) {
-                    Icon(imageVector = Icons.Default.Person, contentDescription = "profile")
-                }
-            }
-        },
-        containerColor = Color.Transparent
-    )
-}
-
-@Composable
-fun MovieBox(
-    catagory: String,
-    movies: State<MovieList?>,
-    navController: NavController
-) {
-    Box(modifier = Modifier.padding(start = 8.dp)) {
-        LazyRow {
-            movies.value?.results?.filter {
-                it.poster_path != null
-            }?.forEachIndexed { i, movie ->
-                item {
-                    BoxA(
-                        catagory = catagory,
-                        id = movie.id,
-                        name = movie.title,
-                        posterPath = movie.poster_path,
-                        details = movie.overview,
-                        score = movie.vote_average,
-                        onClick = { id ->
-                            navController.navigate(
-                                Navigator.MovieDetailsPage(
-                                    title = movie.title,
-                                    id = id,
-                                    catagory = catagory
-                                )
-                            )
-                        },
-                        rank = "${ i + 1 }"
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun TvBox(
-    catagory: String,
-    tvShows: State<TvList?>,
-    navController: NavController
-) {
-    Box(modifier = Modifier.padding(start = 8.dp)) {
-        LazyRow {
-            tvShows.value?.results?.filter {
-                it.poster_path != null
-            }?.forEachIndexed { i, show ->
-                item {
-                    BoxA(
-                        catagory = catagory,
-                        id = show.id,
-                        name = show.name,
-                        posterPath = show.poster_path,
-                        details = show.overview,
-                        score = show.vote_average,
-                        onClick = { id ->
-                            navController.navigate(
-                                Navigator.TvDetailsPage(
-                                    show = show.name,
-                                    id = id,
-                                    catagory = catagory
-                                )
-                            )
-                        },
-                        rank = "${ i + 1 }"
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun PersonBox(
-    catagory: String,
-    persons: State<ActorList?>,
-    navController: NavController
-) {
-    Box(modifier = Modifier.padding(start = 8.dp)) {
-        LazyRow {
-            persons.value?.results?.filter {
-                it.profile_path != null
-            }?.forEachIndexed { i, person ->
-                item {
-                    BoxClipped(
-                        catagory = catagory,
-                        rank = "${ i + 1 }",
-                        id = person.id,
-                        name = person.name,
-                        bestKnownFor = person.known_for_department,
-                        popularity = person.popularity,
-                        profilePath = person.profile_path,
-                        navController = navController,
-                        onClick = { id ->
-                            navController.navigate(
-                                Navigator.PersonDetailsPage(
-                                    name = person.name,
-                                    id = id,
-                                    catagory = catagory
-                                )
-                            )
-                        }
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun BoxClipped(
-    catagory: String,
-    id: Int,
-    rank: String,
-    name: String,
-    bestKnownFor: String,
-    popularity: String,
-    profilePath: String,
-    navController: NavController,
-    onClick: (Int) -> Unit
-) {
-    Column(
-        modifier = Modifier
-            .height(336.dp)
-            .width(192.dp)
-            .shadow(elevation = 8.dp)
-    ) {
-        Box(
-            modifier = Modifier
-                .width(192.dp)
-                .clip(
-                    RoundedCornerShape(
-                        topStart = 16.dp,
-                        topEnd = 16.dp
-                    )
-                )
-                .shadow(elevation = 8.dp)
-                .clickable { onClick(id) },
-            contentAlignment = Alignment.Center
-        ) {
-            Box(
-                modifier = Modifier
-                    .height(256.dp)
-                    .width(176.dp)
-                    .shadow(8.dp),
-                contentAlignment = Alignment.BottomStart
-            ) {
-                ImageAsync(
-                    contentDescription = "${ catagory } ${ name }",
-                    clip = true,
-                    aspectRatio = 5f / 8f,
-                    backDropPath = profilePath
-                )
-                Heart(name = name, paddingStart = 8.dp, paddingBottom = 8.dp)
-            }
-        }
-        Details(catagory = catagory, name = name, score = popularity, rank = rank, details = "", width = 192.dp, trending = false, showCircleI = false)
-    }
-}
-
-@Composable
-fun Heart(
-    name: String,
-    paddingStart: Dp,
-    paddingBottom: Dp
-) {
-    // Favorite
-    Box(
-        modifier = Modifier
-            .padding(start = paddingStart, bottom = paddingBottom)
-            .size(40.dp)
-            .clip(CircleShape)
-            .border(
-                width = 2.dp,
-                color = Color.Magenta,
-                shape = CircleShape
-            )
-            .background(gray200.copy(alpha = 0.8f)),
-        contentAlignment = Alignment.Center
-    ) {
-        Icon(
-            modifier = Modifier,
-            imageVector = Icons.Outlined.FavoriteBorder,
-            contentDescription = "Favorite ${ name }"
-        )
-    }
-}
-
-@Composable
-fun UpcommingBox(
-    catagory: String,
-    movies: State<MovieList?>,
-    navController: NavController
-) {
-    Box(modifier = Modifier.padding(start = 8.dp)) {
-        LazyRow {
-            movies.value?.results?.forEachIndexed { i, movie ->
-                item {
-                    BoxB(
-                        catagory = catagory,
-                        id = movie.id,
-                        name = movie.title,
-                        details = movie.overview,
-                        date = movie.release_date,
-                        score = movie.vote_average,
-                        posterPath = movie.poster_path,
-                        onClick = { id ->
-                            navController.navigate(
-                                Navigator.MovieDetailsPage(
-                                    title = movie.title,
-                                    id = id,
-                                    catagory = catagory
-                                )
-                            )
-                        }
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun BoxOfficeBox(
-    catagory: String,
-    boxOfficeNumbers: List<Map<String, String>>,
-    navController: NavController
-) {
-    // date range
-    Row (Modifier.padding(start = 8.dp)) {
-        Box(
-            modifier = Modifier.height(30.dp),
-            contentAlignment = Alignment.CenterStart
-        ) {
-            Text(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 16.dp),
-                text = "${ boxOfficeNumbers.first()["date range"] }"
-            )
-        }
-    }
-
-    Box(
-        modifier = Modifier
-            .height(680.dp)
-            .fillMaxWidth(0.99f)
-            .padding(all = 8.dp)
-            .shadow(8.dp)
-    ) {
-        Column (
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(bottom = 16.dp),
-            verticalArrangement = Arrangement.SpaceBetween
-        ) {
-            Spacer(modifier = Modifier.height(16.dp))
-            boxOfficeNumbers.forEachIndexed { i, movieMap ->
-                Row (
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .heightIn(min = 64.dp, max = 80.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        modifier = Modifier
-                            .width(72.dp)
-                            .padding(start = 8.dp, end = 8.dp),
-                        text = "${ i + 1 }",
-                        fontSize = MaterialTheme.typography.displaySmall.fontSize,
-                        textAlign = TextAlign.Center
-                    )
-
-                    Ribbon(paddingEnd = 16.dp)
-
-                    Column (
-                        modifier = Modifier
-                    ) {
-                        Text(text = "${ movieMap["Release"] }")
-                        Text(text = "${ movieMap["Gross"] }", textAlign = TextAlign.Center)
-                    }
-
-                    Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
-                        Icon(
-                            modifier = Modifier.padding(end = 16.dp),
-                            imageVector = Icons.Outlined.BookOnline,
-                            contentDescription = "book online"
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun BoxA(
-    catagory: String,
-    id: Int,
-    name: String,
-    posterPath: String,
-    details: String,
-    score: String,
-    onClick: (Int) -> Unit,
-    rank: String
-) {
-    Column(
-        modifier = Modifier
-            .width(225.dp)
-            .height(525.dp)
-            .shadow(elevation = 8.dp)
-    ) {
-        Box (
-            modifier = Modifier
-                .width(220.dp)
-                .clickable { onClick(id) },
-            contentAlignment = Alignment.TopStart
-        ) {
-            Column (modifier = Modifier.padding(5.dp)) {
-                Box(modifier = Modifier.width(210.dp)) {
-                    ImageAsync(
-                        contentDescription = "${ catagory } ${ name }",
-                        backDropPath = posterPath
-                    )
-                    Ribbon()
-                }
-            }
-        }
-        val trending = Regex("trending").containsMatchIn(catagory.lowercase())
-        Details(catagory = catagory, rank = rank, name = name, details = details, score = score, width = 225.dp, trending = trending, showCircleI = !trending)
-    }
-}
-
-val releaseDateFormat = SimpleDateFormat("yyyy MMM")
-
-@Composable
-fun BoxB(
-    catagory: String,
-    id: Int,
-    name: String,
-    details: String,
-    score: String,
-    date: Date,
-    posterPath: String,
-    onClick: (Int) -> Unit,
-) {
-    Column {
-        Row(
-            modifier = Modifier
-                .width(323.dp)
-        ) {
-            // upcoming date
-            Box(
-                modifier = Modifier
-                    .padding(start = 18.dp, top = 4.dp, bottom = 12.dp),
-                contentAlignment = Alignment.CenterStart
-            ) {
-                Text(
-                    text = releaseDateFormat.format(date),
-                    fontStyle = MaterialTheme.typography.labelLarge.fontStyle,
-                    color = ripeMango,
-                    textAlign = TextAlign.Center
-                )
-            }
-        }
-
-        Column(
-            modifier = Modifier
-                .width(323.dp)
-                .shadow(elevation = 8.dp)
-        ) {
-            // movie box
-            Box(
-                modifier = Modifier
-                    .width(320.dp)
-                    .clickable { onClick(id) },
-                contentAlignment = Alignment.TopStart
-            ) {
-                Column(modifier = Modifier.padding(5.dp)) {
-                    Box(modifier = Modifier.width(310.dp)) {
-                        ImageAsync(
-                            contentDescription = "${ catagory } ${ name }",
-                            aspectRatio = 5f / 8f,
-                            backDropPath = posterPath,
-                        )
-                        // ribbon
-                        Ribbon(paddingStart = 12.dp)
-                    }
-                }
-            }
-            Details(catagory = catagory, name = name, rank = "", details = details, score = score, width = 323.dp, trending = false, showCircleI = false)
-        }
-    }
-}
-
-@Composable
-fun Details(
-    catagory: String,
-    rank: String,
-    name: String,
-    details: String,
-    score: String,
-    width: Dp,
-    showCircleI: Boolean,
-    trending: Boolean
-) {
-    Column (
-        modifier = Modifier
-            .width(width)
-            .fillMaxHeight()
-            .padding(start = 8.dp, bottom = 8.dp),
-        verticalArrangement = Arrangement.SpaceEvenly
-    ) {
-        // Trending
-        if (trending) {
-            Box(
-                modifier = Modifier.padding(start = 4.dp),
-                contentAlignment = Alignment.CenterStart
-            ) {
-                Text(
-                    text = rank,
-                    fontStyle = MaterialTheme.typography.displaySmall.fontStyle
-                )
-            }
-        }
-        // movie || show || person name
-        Box(
-            modifier = Modifier.padding(start = 8.dp, top = 8.dp),
-            contentAlignment = Alignment.CenterStart
-        ) {
-            Text(text = name, minLines = 1, maxLines = 1, overflow = TextOverflow.Ellipsis)
-        }
-        // details
-        if (details.isNotEmpty()) {
-            Text(
-                text = details,
-                modifier = Modifier.padding(all = 12.dp),
-                minLines = 1,
-                maxLines = 3,
-                overflow = TextOverflow.Ellipsis
-            )
-        }
-        // rating
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 8.dp)
-        ) {
-            Icon(
-                modifier = Modifier.padding(start = 8.dp),
-                imageVector = Icons.Filled.Star,
-                contentDescription = "rating",
-                tint = ripeMango
-            )
-            Text(modifier = Modifier.padding(start = 8.dp), text = score)
-        }
-        // Cirlce i
-        if (showCircleI) {
-            InformationCircle(paddingEnd = 16.dp)
         }
     }
 }
@@ -1085,7 +444,10 @@ fun Carousel(images: State<Images?>) {
 
 @Composable
 fun isLoading() {
-    Box(contentAlignment = Alignment.Center) {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
         CircularProgressIndicator(
             modifier = Modifier.fillMaxSize(fraction = 0.5f),
             color = MaterialTheme.colorScheme.outline
@@ -1107,8 +469,3 @@ fun isError() {
         }
     }
 }
-
-// TODO:
-// annotation syntax
-// create homescreen page
-// navigator -> destination
