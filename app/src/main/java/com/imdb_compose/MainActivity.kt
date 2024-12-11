@@ -23,15 +23,25 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarColors
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.carousel.HorizontalMultiBrowseCarousel
 import androidx.compose.material3.carousel.rememberCarouselState
 import androidx.compose.runtime.Composable
@@ -62,6 +72,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
@@ -76,21 +87,22 @@ import com.example.compose.gray300
 import com.example.compose.gray600
 import com.imdb_compose.domain.Images
 import com.imdb_compose.domain.Resources
-import com.imdb_compose.ui.BottomBar
 import com.imdb_compose.ui.CategoryPage
 import com.imdb_compose.ui.Destination
 import com.imdb_compose.ui.HomePage
 import com.imdb_compose.ui.MovieDetailsPage
 import com.imdb_compose.ui.PersonDetailsPage
+import com.imdb_compose.ui.PlayClipPage
 import com.imdb_compose.ui.SearchPage
-import com.imdb_compose.ui.TopBar
 import com.imdb_compose.ui.TvDetailsPage
 import com.imdb_compose.ui.viewmodel.CategoryPageViewModel
 import com.imdb_compose.ui.viewmodel.HomeScreenViewModel
 import com.imdb_compose.ui.viewmodel.MovieDetailsPageViewModel
 import com.imdb_compose.ui.viewmodel.PersonDetailsPageViewModel
+import com.imdb_compose.ui.viewmodel.PlayClipViewModel
 import com.imdb_compose.ui.viewmodel.TvDetailsPageViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -186,6 +198,17 @@ fun Theme() {
                     composable<Destination.SearchPage> {
                         titleScreen = stringResource(R.string.search)
                         SearchPage()
+                    }
+                    composable<Destination.PlayClipPage> {
+                        val playClipViewModel: PlayClipViewModel = hiltViewModel()
+                        LaunchedEffect(558449) {
+                            viewModel.viewModelScope.launch {
+                                playClipViewModel.getMovieClip(558449)
+                            }
+                        }
+                        val movieClip by playClipViewModel.movieClip.collectAsState()
+                        titleScreen = "Preview"
+                        PlayClipPage(movieClip)
                     }
                     composable<Destination.CategoryPage> {
                         val args = it.toRoute<Destination.CategoryPage>()
@@ -445,6 +468,65 @@ fun Carousel(images: State<Images?>) {
             }
         }
     }
+}
+
+@Composable
+fun TopBar(
+    title: String,
+    showUpButton: Boolean,
+    onUpClicked: () -> Unit
+) {
+    TopAppBar(
+        title = {
+            Text(
+                text = title,
+                color = MaterialTheme.colorScheme.onSecondary,
+                style = MaterialTheme.typography.headlineLarge
+            )
+        },
+        navigationIcon = {
+            if (showUpButton) {
+                IconButton(onClick = onUpClicked) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = stringResource(R.string.back),
+                        tint = Color.White
+                    )
+                }
+            }
+        },
+        colors = TopAppBarColors(
+            containerColor = Color.Transparent,
+            titleContentColor = TopAppBarDefaults.topAppBarColors().titleContentColor,
+            actionIconContentColor = TopAppBarDefaults.topAppBarColors().actionIconContentColor,
+            scrolledContainerColor = TopAppBarDefaults.topAppBarColors().scrolledContainerColor,
+            navigationIconContentColor = TopAppBarDefaults.topAppBarColors().navigationIconContentColor
+        )
+    )
+}
+
+@Composable
+fun BottomBar(onClick: (Destination) -> Unit) {
+    BottomAppBar(
+        modifier = Modifier.fillMaxWidth(),
+        actions = {
+            Row (modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+                IconButton(onClick = { onClick(Destination.HomePage) }) {
+                    Icon(imageVector = Icons.Default.Home, contentDescription = "home")
+                }
+                IconButton(onClick = { onClick(Destination.SearchPage) }) {
+                    Icon(imageVector = Icons.Default.Search, contentDescription = "search")
+                }
+                IconButton(onClick = { onClick(Destination.PlayClipPage) }) {
+                    Icon(imageVector = Icons.Default.PlayArrow, contentDescription = "home")
+                }
+                IconButton(onClick = {}) {
+                    Icon(imageVector = Icons.Default.Person, contentDescription = "profile")
+                }
+            }
+        },
+        containerColor = Color.Transparent
+    )
 }
 
 @Composable

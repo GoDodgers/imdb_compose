@@ -25,7 +25,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -48,9 +47,9 @@ fun SearchPage() {
     val viewModel: SearchPageViewModel = hiltViewModel()
 
     val textFieldSearch by viewModel.textFieldSearchState.collectAsState()
-    val searchResult by viewModel.searchResults.collectAsState()
+    val searchResult by viewModel.searchResult.collectAsState()
 
-    var search by remember { mutableStateOf(textFieldSearch) }
+    var searchString by remember { mutableStateOf(textFieldSearch) }
     var result by remember { mutableStateOf(searchResult) }
 
     val interactionSource = remember { MutableInteractionSource() }
@@ -74,7 +73,7 @@ fun SearchPage() {
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                IconButton({ viewModel.getSearchResults(search.text.toString()) }) {
+                IconButton({ viewModel.getSearchResults(searchString.text.toString()) }) {
                     Icon(
                         imageVector = Icons.Outlined.Search,
                         modifier = Modifier.padding(start = 4.dp),
@@ -83,15 +82,15 @@ fun SearchPage() {
                     )
                 }
                 BasicTextField(
-                    state = search,
+                    state = searchString,
                     modifier = Modifier.fillMaxWidth(0.80f),
                     textStyle = MaterialTheme.typography.bodyLarge,
                     interactionSource = interactionSource,
                     lineLimits = TextFieldLineLimits.SingleLine,
                     keyboardOptions = KeyboardOptions(autoCorrectEnabled = false)
                 )
-                AnimatedVisibility(visible = search.text.isNotBlank()) {
-                    IconButton({ search = TextFieldState(); result = Async.Init }) {
+                AnimatedVisibility(visible = searchString.text.isNotBlank()) {
+                    IconButton({ searchString = TextFieldState(); }) {
                         Icon(
                             imageVector = Icons.Outlined.Delete,
                             modifier = Modifier.padding(start = 8.dp),
@@ -105,7 +104,7 @@ fun SearchPage() {
             when(searchResult) {
                 is Async.Init -> {
                     Text(
-                        text = search.text.toString(),
+                        text = searchString.text.toString(),
                         modifier = Modifier,
                         color = MaterialTheme.colorScheme.surface,
                         textAlign = TextAlign.Center,

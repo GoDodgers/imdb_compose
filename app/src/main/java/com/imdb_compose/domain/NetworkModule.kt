@@ -49,5 +49,8 @@ object NetworkModule {
 
     @Provides
     fun searchApi(retrofit: Retrofit): SearchApi = retrofit.create(SearchApi::class.java)
+
+    @Provides
+    fun videoClipApi(retrofit: Retrofit): VideoClipApi = retrofit.create(VideoClipApi::class.java)
 }
 

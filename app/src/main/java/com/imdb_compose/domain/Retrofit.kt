@@ -3,6 +3,7 @@ package com.imdb_compose.domain
 import com.imdb_compose.BuildConfig
 import com.imdb_compose.domain.Resources.AIRING_TODAY_TV_PATH
 import com.imdb_compose.domain.Resources.MOVIES_OF_WEEK_PATH
+import com.imdb_compose.domain.Resources.MOVIE_CLIP_PATH
 import com.imdb_compose.domain.Resources.MOVIE_DETAILS_PATH
 import com.imdb_compose.domain.Resources.MOVIE_IMAGES_PATH
 import com.imdb_compose.domain.Resources.MOVIE_SEARCH_PATH
@@ -30,24 +31,26 @@ object Resources {
     const val TRENDING_MOVIES_DAY_PATH = "3/trending/movie/day"
     const val MOVIE_DETAILS_PATH = "3/movie/{id}"
     const val MOVIE_IMAGES_PATH = "3/movie/{id}/images"
-    const val MOVIE_SEARCH_PATH = "3/search/movie"
 
     const val TRENDING_TV_DAY_PATH = "3/trending/tv/day"
     const val AIRING_TODAY_TV_PATH = "3/tv/airing_today"
     const val TV_SERIES_DETAILS_PATH = "/3/tv/{id}"
     const val TV_SERIES_IMGAGES_PATH = "/3/tv/{id}/images"
-    const val TV_SEARCH_PATH = "3/search/tv"
 
     const val POPULAR_PERSONS_PATH = "3/person/popular"
     const val TRENDING_PERSONS_DAY_PATH = "3/trending/person/day"
     const val PERSON_DETAILS_PATH = "3/person/{id}"
     const val TRENDING_PERSONS_WEEK_PATH = "3/trending/person/week"
-    const val PERSON_SEARCH_PATH = "3/search/person"
 
     const val MULTI_SEARCH_PATH = "3/search/multi"
+    const val MOVIE_SEARCH_PATH = "3/search/movie"
+    const val TV_SEARCH_PATH = "3/search/tv"
+    const val PERSON_SEARCH_PATH = "3/search/person"
 
     const val IMAGE_PATH =  "t/p/original/"
     const val IMAGE_PATH_w500 = "t/p/w500/"
+
+    const val MOVIE_CLIP_PATH = "3/movie/{id}/videos"
 }
 
 interface MovieApi {
@@ -65,9 +68,6 @@ interface MovieApi {
 
     @GET("${ MOVIE_IMAGES_PATH }?api_key=${ BuildConfig.API_KEY }")
     suspend fun getMovieImages(@Path("id") id: Int): Images
-
-    @GET("${ MOVIE_SEARCH_PATH }?api_key=${ BuildConfig.API_KEY }")
-    suspend fun queryMovieSearch(@Query("query") query: String): MovieSearch
 }
 
 interface TvApi {
@@ -82,8 +82,6 @@ interface TvApi {
 
     @GET("${ TV_SERIES_IMGAGES_PATH }?api_key=${ BuildConfig.API_KEY }")
     suspend fun getTvSeriesImages(@Path("id") id: Int): Images
-    @GET("${ TV_SEARCH_PATH }?api_key=${ BuildConfig.API_KEY }")
-    suspend fun queryTvSearch(@Query("query") query: String): TvSearch
 }
 
 interface PeopleApi {
@@ -95,11 +93,23 @@ interface PeopleApi {
 
     @GET("${ PERSON_DETAILS_PATH }?language=en-US&api_key=${ BuildConfig.API_KEY }")
     suspend fun getPersonDetails(@Path("id") id: Int): ActorDetail
-    @GET("${ PERSON_SEARCH_PATH }?language=en-US&api_key=${ BuildConfig.API_KEY }")
-    suspend fun getPersonSearch(@Query("query") query: String): PersonSearch
 }
 
 interface SearchApi {
     @GET("${ MULTI_SEARCH_PATH }?api_key=${ BuildConfig.API_KEY }")
     suspend fun queryMultiSearch(@Query("query") query: String): MultiSearch
+
+    @GET("${ MOVIE_SEARCH_PATH }?api_key=${ BuildConfig.API_KEY }")
+    suspend fun queryMovieSearch(@Query("query") query: String): MovieSearch
+
+    @GET("${ TV_SEARCH_PATH }?api_key=${ BuildConfig.API_KEY }")
+    suspend fun queryTvSearch(@Query("query") query: String): TvSearch
+
+    @GET("${ PERSON_SEARCH_PATH }?language=en-US&api_key=${ BuildConfig.API_KEY }")
+    suspend fun getPersonSearch(@Query("query") query: String): PersonSearch
+}
+
+interface VideoClipApi {
+    @GET("${ MOVIE_CLIP_PATH }?api_key=${ BuildConfig.API_KEY }")
+    suspend fun getMovieClip(@Path("id") id: Int): VideoClipList
 }

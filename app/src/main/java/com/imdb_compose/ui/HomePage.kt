@@ -156,65 +156,6 @@ fun HomePage(
 }
 
 @Composable
-fun TopBar(
-    title: String,
-    showUpButton: Boolean,
-    onUpClicked: () -> Unit
-) {
-    TopAppBar(
-        title = {
-            Text(
-                text = title,
-                color = MaterialTheme.colorScheme.onSecondary,
-                style = MaterialTheme.typography.headlineLarge
-            )
-        },
-        navigationIcon = {
-            if (showUpButton) {
-                IconButton(onClick = onUpClicked) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = stringResource(R.string.back),
-                        tint = Color.White
-                    )
-                }
-            }
-        },
-        colors = TopAppBarColors(
-            containerColor = Color.Transparent,
-            titleContentColor = TopAppBarDefaults.topAppBarColors().titleContentColor,
-            actionIconContentColor = TopAppBarDefaults.topAppBarColors().actionIconContentColor,
-            scrolledContainerColor = TopAppBarDefaults.topAppBarColors().scrolledContainerColor,
-            navigationIconContentColor = TopAppBarDefaults.topAppBarColors().navigationIconContentColor
-        )
-    )
-}
-
-@Composable
-fun BottomBar(onClick: (Destination) -> Unit) {
-    BottomAppBar(
-        modifier = Modifier.fillMaxWidth(),
-        actions = {
-            Row (modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-                IconButton(onClick = { onClick(Destination.HomePage) }) {
-                    Icon(imageVector = Icons.Default.Home, contentDescription = "home")
-                }
-                IconButton(onClick = { onClick(Destination.SearchPage) }) {
-                    Icon(imageVector = Icons.Default.Search, contentDescription = "search")
-                }
-                IconButton(onClick = {}) {
-                    Icon(imageVector = Icons.Default.PlayArrow, contentDescription = "home")
-                }
-                IconButton(onClick = {}) {
-                    Icon(imageVector = Icons.Default.Person, contentDescription = "profile")
-                }
-            }
-        },
-        containerColor = Color.Transparent
-    )
-}
-
-@Composable
 fun MovieBox(
     catagory: String,
     movies: State<MovieList?>,
@@ -308,7 +249,6 @@ fun PersonBox(
                         bestKnownFor = person.known_for_department,
                         popularity = person.popularity,
                         profilePath = person.profile_path,
-                        navController = navController,
                         onClick = { id ->
                             navController.navigate(
                                 Destination.PersonDetailsPage(
@@ -332,10 +272,9 @@ fun BoxClipped(
     id: Int,
     rank: String,
     name: String,
-    bestKnownFor: String,
+    bestKnownFor: String?,
     popularity: String,
     profilePath: String,
-    navController: NavController,
     onClick: (Int) -> Unit
 ) {
     Column(
@@ -413,7 +352,9 @@ fun UpcommingBox(
 ) {
     Box(modifier = Modifier.padding(start = 8.dp)) {
         LazyRow {
-            movies.value?.results?.forEachIndexed { i, movie ->
+            movies.value?.results?.filter {
+                it.overview != null
+            }?.forEachIndexed { i, movie ->
                 item {
                     BoxB(
                         catagory = catagory,
@@ -645,13 +586,13 @@ fun Details(
         }
         // movie || show || person name
         Box(
-            modifier = Modifier.padding(start = 8.dp, top = 8.dp),
+            modifier = Modifier.padding(start = 8.dp, top = 8.dp, bottom = 8.dp),
             contentAlignment = Alignment.CenterStart
         ) {
             Text(text = name, minLines = 1, maxLines = 1, overflow = TextOverflow.Ellipsis)
         }
         // details
-        if (details.isNotEmpty()) {
+        if (details.isNotBlank()) {
             Text(
                 text = details,
                 modifier = Modifier.padding(all = 12.dp),
@@ -676,7 +617,12 @@ fun Details(
         }
         // Cirlce i
         if (showCircleI) {
-            InformationCircle(paddingEnd = 16.dp)
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.BottomEnd
+            ) {
+                InformationCircle(paddingEnd = 16.dp)
+            }
         }
     }
 }

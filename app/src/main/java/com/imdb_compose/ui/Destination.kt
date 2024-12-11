@@ -8,6 +8,8 @@ interface Destination {
     @Serializable
     data object SearchPage: Destination
     @Serializable
+    data object PlayClipPage: Destination
+    @Serializable
     data class CategoryPage(val catagory: String): Destination
     @Serializable
     data class MovieDetailsPage(val id: Int, val title: String, val catagory: String): Destination

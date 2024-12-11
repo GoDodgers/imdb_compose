@@ -26,11 +26,11 @@ data class ActorResult(
     val id: Int,
     val name: String,
     val original_name: String,
-    val known_for_department: String,
+    val known_for_department: String?,
     val profile_path: String,
     val popularity: String,
     val vote_average: String,
-    val known_for: List<MovieResult>
+    val known_for: List<MovieResult>?
 )
 
 data class ActorDetail(
@@ -42,7 +42,7 @@ data class ActorDetail(
     val place_of_birth: String,
     val profile_path: String,
     val popularity: String,
-    val known_for_department: String
+    val known_for_department: String?
 )
 
 data class MovieList(
@@ -254,4 +254,20 @@ data class KnownFor(
     val popularity: Float,
     val release_date: String,
     val vote_average: Float
+)
+
+data class VideoClipList(
+    val id: Int,
+    val results: List<Clip>
+)
+
+data class Clip(
+    val id: String,
+    val name: String,
+    val key: String,
+    val site: String,
+    val size: Int,
+    val type: String,
+    val official: Boolean,
+    val published_at: String
 )

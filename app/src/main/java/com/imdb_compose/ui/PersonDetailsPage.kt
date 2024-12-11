@@ -67,10 +67,13 @@ fun PersonDetailsPage(
                             fontStyle = MaterialTheme.typography.headlineLarge.fontStyle
                         )
                         Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            text = details.known_for_department,
-                            fontStyle = MaterialTheme.typography.titleMedium.fontStyle
-                        )
+                        details.known_for_department?.let {
+                            println(it);
+                            Text(
+                                text = it,
+                                fontStyle = MaterialTheme.typography.titleMedium.fontStyle
+                            )
+                        }
 
                         Spacer(modifier = Modifier.height(4.dp))
                     }
